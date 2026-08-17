@@ -1,0 +1,2298 @@
+<title>Bancada</title>
+<style>
+/* ============================== TOKENS ============================== */
+:root{
+  color-scheme: light;
+  --bg:#F2F2EF;
+  --surface:#FFFFFF;
+  --surface-2:#F8F8F5;
+  --surface-3:#EAEAE5;
+  --line:#DEDED7;
+  --line-strong:#C4C4BB;
+  --ink:#15181B;
+  --ink-2:#4C5257;
+  --ink-3:#787E84;
+  --accent:#1F6FA8;
+  --accent-ink:#FFFFFF;
+  --s1:#1F6FA8;
+  --s2:#DE6A1F;
+  --s3:#128A6E;
+  --s4:#6B5BB5;
+  --good:#2F7D4F;
+  --warn:#9C6205;
+  --crit:#B3352A;
+  --rail:#1B1F22;
+  --rail-ink:#D9DBDA;
+  --rail-ink-2:#8A9196;
+  --rail-line:#2E3438;
+  --shadow:0 1px 2px rgba(18,22,26,.05), 0 10px 28px -18px rgba(18,22,26,.35);
+  --r:6px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --bg:#0F1214;
+    --surface:#171B1E;
+    --surface-2:#1D2225;
+    --surface-3:#262C30;
+    --line:#2B3236;
+    --line-strong:#3D454B;
+    --ink:#E9EBEA;
+    --ink-2:#A6AFB5;
+    --ink-3:#7A838A;
+    --accent:#3A88C0;
+    --accent-ink:#0A0D0F;
+    --s1:#3A88C0;
+    --s2:#D2701F;
+    --s3:#17A184;
+    --s4:#8E80D4;
+    --good:#4E9E6A;
+    --warn:#C08E2E;
+    --crit:#D9695C;
+    --rail:#121618;
+    --rail-ink:#CFD3D2;
+    --rail-ink-2:#79828A;
+    --rail-line:#242A2E;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -18px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#0F1214;
+  --surface:#171B1E;
+  --surface-2:#1D2225;
+  --surface-3:#262C30;
+  --line:#2B3236;
+  --line-strong:#3D454B;
+  --ink:#E9EBEA;
+  --ink-2:#A6AFB5;
+  --ink-3:#7A838A;
+  --accent:#3A88C0;
+  --accent-ink:#0A0D0F;
+  --s1:#3A88C0;
+  --s2:#D2701F;
+  --s3:#17A184;
+  --s4:#8E80D4;
+  --good:#4E9E6A;
+  --warn:#C08E2E;
+  --crit:#D9695C;
+  --rail:#121618;
+  --rail-ink:#CFD3D2;
+  --rail-ink-2:#79828A;
+  --rail-line:#242A2E;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -18px rgba(0,0,0,.8);
+}
+
+/* ============================== BASE ============================== */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  font-size:14px;
+  line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+.mono,.num,td.num,th.num{
+  font-family:ui-monospace,"Cascadia Mono","Segoe UI Mono",Consolas,"SF Mono",Menlo,monospace;
+  font-variant-numeric:tabular-nums;
+  font-feature-settings:"tnum" 1;
+}
+h1,h2,h3{margin:0;letter-spacing:-.012em;text-wrap:balance;font-weight:650}
+p{margin:0}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+
+.eyebrow{
+  font-size:10.5px;font-weight:650;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3);
+}
+
+/* ============================== SHELL ============================== */
+.app{display:grid;grid-template-columns:216px 1fr;min-height:100vh}
+
+.rail{
+  background:var(--rail);color:var(--rail-ink);
+  display:flex;flex-direction:column;
+  border-right:1px solid var(--rail-line);
+  position:sticky;top:0;height:100vh;
+}
+.brand{padding:18px 18px 14px;border-bottom:1px solid var(--rail-line)}
+.brand-mark{display:flex;align-items:center;gap:9px}
+.brand-mark svg{flex:none}
+.brand-name{font-size:16px;font-weight:680;letter-spacing:-.01em;color:#fff}
+.brand-sub{margin-top:4px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--rail-ink-2)}
+
+.nav{padding:10px 8px;display:flex;flex-direction:column;gap:1px;overflow-y:auto;flex:1}
+.nav-group{
+  padding:14px 10px 6px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--rail-ink-2);
+}
+.nav-item{
+  display:flex;align-items:center;gap:10px;width:100%;
+  padding:8px 10px;border:0;background:transparent;color:var(--rail-ink);
+  border-radius:var(--r);cursor:pointer;text-align:left;font-size:13.5px;
+  position:relative;
+}
+.nav-item:hover{background:rgba(255,255,255,.06)}
+.nav-item[aria-current="page"]{background:rgba(255,255,255,.1);color:#fff;font-weight:600}
+.nav-item[aria-current="page"]::before{
+  content:"";position:absolute;left:-8px;top:6px;bottom:6px;width:3px;
+  background:var(--accent);border-radius:0 2px 2px 0;
+}
+.nav-item .tag{
+  margin-left:auto;font-size:10px;letter-spacing:.06em;color:var(--rail-ink-2);
+  font-family:ui-monospace,Consolas,monospace;
+}
+.nav-item .badge{
+  margin-left:auto;min-width:20px;padding:1px 6px;border-radius:9px;
+  background:var(--crit);color:#fff;font-size:10.5px;font-weight:700;text-align:center;
+  font-variant-numeric:tabular-nums;
+}
+.rail-foot{padding:12px;border-top:1px solid var(--rail-line);display:flex;gap:8px}
+.rail-foot button{
+  flex:1;padding:7px 8px;border:1px solid var(--rail-line);background:transparent;
+  color:var(--rail-ink-2);border-radius:var(--r);cursor:pointer;font-size:11.5px;
+}
+.rail-foot button:hover{color:#fff;border-color:#4a5257}
+
+.main{min-width:0;display:flex;flex-direction:column}
+
+.topbar{
+  position:sticky;top:0;z-index:30;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  padding:12px 24px;background:var(--surface);border-bottom:1px solid var(--line);
+}
+.topbar .title{font-size:17px;font-weight:650;letter-spacing:-.015em}
+.topbar .sep{width:1px;height:20px;background:var(--line)}
+.spacer{margin-left:auto}
+.co{display:flex;align-items:center;gap:9px}
+.co-badge{
+  width:28px;height:28px;border-radius:5px;background:var(--surface-3);
+  display:grid;place-items:center;font-size:11px;font-weight:700;color:var(--ink-2);
+  border:1px solid var(--line);
+}
+.co-name{font-size:13px;font-weight:600;line-height:1.15}
+.co-meta{font-size:11px;color:var(--ink-3);line-height:1.15}
+
+.view{padding:20px 24px 56px;display:none;flex-direction:column;gap:18px}
+.view.active{display:flex}
+
+/* ============================== CONTROLS ============================== */
+.btn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:7px 13px;border-radius:var(--r);border:1px solid var(--line-strong);
+  background:var(--surface);color:var(--ink);cursor:pointer;font-size:13px;font-weight:500;
+  white-space:nowrap;
+}
+.btn:hover{background:var(--surface-2);border-color:var(--ink-3)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.sm{padding:4px 9px;font-size:12px}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--ink-2)}
+.btn.ghost:hover{background:var(--surface-3);color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+input,select,textarea{
+  font:inherit;color:var(--ink);background:var(--surface);
+  border:1px solid var(--line-strong);border-radius:var(--r);padding:7px 10px;width:100%;
+}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent)}
+label.field{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--ink-2)}
+label.field > span{font-weight:600;color:var(--ink-2)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.toolbar .grow{flex:1;min-width:180px}
+.seg{display:flex;border:1px solid var(--line-strong);border-radius:var(--r);overflow:hidden}
+.seg button{
+  border:0;background:var(--surface);padding:6px 12px;cursor:pointer;font-size:12.5px;
+  color:var(--ink-2);border-right:1px solid var(--line);
+}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);font-weight:600}
+
+/* ============================== CARDS ============================== */
+.card{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--shadow);overflow:hidden;
+}
+.card-head{
+  display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
+  padding:13px 16px;border-bottom:1px solid var(--line);
+}
+.card-head h3{font-size:14px}
+.card-head .hint{font-size:12px;color:var(--ink-3)}
+.card-body{padding:16px}
+.card-body.flush{padding:0}
+
+.grid{display:grid;gap:16px}
+.g-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g-main{grid-template-columns:minmax(0,1.65fr) minmax(280px,1fr)}
+
+/* ============================== KPI ============================== */
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.kpi{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+  padding:13px 14px;display:flex;flex-direction:column;gap:5px;position:relative;
+  box-shadow:var(--shadow);
+}
+.kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--line-strong)}
+.kpi.is-good::before{background:var(--good)}
+.kpi.is-warn::before{background:var(--warn)}
+.kpi.is-crit::before{background:var(--crit)}
+.kpi.is-accent::before{background:var(--accent)}
+.kpi .k-label{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:650}
+.kpi .k-value{font-size:23px;font-weight:600;letter-spacing:-.02em;line-height:1.1}
+.kpi .k-foot{font-size:11.5px;color:var(--ink-3)}
+.kpi .k-foot strong{color:var(--ink-2);font-weight:600}
+
+/* ============================== TABLE ============================== */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{
+  position:sticky;top:0;background:var(--surface-2);z-index:1;
+  text-align:left;padding:9px 14px;font-size:10.5px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink-3);font-weight:650;
+  border-bottom:1px solid var(--line);white-space:nowrap;
+}
+tbody td{padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:var(--surface-2)}
+td.num,th.num{text-align:right}
+td.tight{width:1%;white-space:nowrap}
+.row-flag{border-left:3px solid transparent}
+.row-flag.crit{border-left-color:var(--crit)}
+.row-flag.warn{border-left-color:var(--warn)}
+.row-flag.good{border-left-color:var(--good)}
+.t-strong{font-weight:600}
+.nowrap{white-space:nowrap}
+.t-sub{font-size:11.5px;color:var(--ink-3)}
+.empty{padding:34px 16px;text-align:center;color:var(--ink-3);font-size:13px}
+
+/* ============================== CHIPS ============================== */
+.chip{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:2px 8px;border-radius:20px;font-size:11.5px;font-weight:600;white-space:nowrap;
+  border:1px solid transparent;
+}
+.chip .dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.chip.good{color:var(--good);background:color-mix(in srgb,var(--good) 12%,var(--surface));border-color:color-mix(in srgb,var(--good) 28%,var(--surface))}
+.chip.warn{color:var(--warn);background:color-mix(in srgb,var(--warn) 13%,var(--surface));border-color:color-mix(in srgb,var(--warn) 30%,var(--surface))}
+.chip.crit{color:var(--crit);background:color-mix(in srgb,var(--crit) 12%,var(--surface));border-color:color-mix(in srgb,var(--crit) 28%,var(--surface))}
+.chip.neutral{color:var(--ink-2);background:var(--surface-3);border-color:var(--line)}
+.chip.accent{color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--surface));border-color:color-mix(in srgb,var(--accent) 26%,var(--surface))}
+
+.file-pill{
+  display:inline-flex;align-items:center;gap:5px;padding:2px 7px;border-radius:4px;
+  background:var(--surface-3);border:1px solid var(--line);font-size:11px;
+  color:var(--ink-2);font-family:ui-monospace,Consolas,monospace;cursor:pointer;
+}
+.file-pill:hover{border-color:var(--accent);color:var(--accent)}
+.file-pill.missing{color:var(--crit);border-color:color-mix(in srgb,var(--crit) 35%,var(--surface));background:color-mix(in srgb,var(--crit) 8%,var(--surface))}
+
+/* ============================== ALERTS ============================== */
+.alert-list{display:flex;flex-direction:column}
+.alert{
+  display:flex;gap:11px;padding:11px 14px;border-bottom:1px solid var(--line);
+  border-left:3px solid transparent;cursor:pointer;background:transparent;border-top:0;border-right:0;
+  width:100%;text-align:left;
+}
+.alert:hover{background:var(--surface-2)}
+.alert:last-child{border-bottom:0}
+.alert.crit{border-left-color:var(--crit)}
+.alert.warn{border-left-color:var(--warn)}
+.alert.info{border-left-color:var(--accent)}
+.alert .a-icon{flex:none;width:18px;height:18px;margin-top:1px}
+.alert .a-title{font-size:13px;font-weight:600;line-height:1.3}
+.alert .a-desc{font-size:12px;color:var(--ink-3);line-height:1.35}
+
+/* ============================== CHARTS ============================== */
+.chart{width:100%;display:block;overflow:visible}
+.chart .grid-line{stroke:var(--line);stroke-width:1}
+.chart .axis-text{fill:var(--ink-3);font-size:10.5px;font-family:ui-monospace,Consolas,monospace}
+.chart .axis-label{fill:var(--ink-2);font-size:11px}
+.chart .bar{transition:opacity .12s}
+.chart-wrap{position:relative}
+.legend{display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--ink-2)}
+.legend .item{display:flex;align-items:center;gap:6px}
+.legend .swatch{width:10px;height:10px;border-radius:2px;flex:none}
+.tip{
+  position:absolute;pointer-events:none;opacity:0;transform:translate(-50%,-112%);
+  background:var(--rail);color:#fff;border-radius:5px;padding:7px 10px;font-size:12px;
+  white-space:nowrap;z-index:20;box-shadow:0 6px 20px -8px rgba(0,0,0,.5);transition:opacity .1s;
+}
+.tip .t-h{font-weight:650;margin-bottom:3px}
+.tip .t-r{display:flex;align-items:center;gap:7px;color:#cfd3d2}
+.tip .t-r b{margin-left:auto;color:#fff;font-family:ui-monospace,Consolas,monospace}
+.tip .sw{width:8px;height:8px;border-radius:2px}
+
+/* ============================== MODAL ============================== */
+.scrim{
+  position:fixed;inset:0;background:rgba(12,15,17,.55);backdrop-filter:blur(2px);
+  display:none;place-items:center;z-index:100;padding:20px;
+}
+.scrim.open{display:grid}
+.modal{
+  background:var(--surface);border:1px solid var(--line);border-radius:8px;
+  width:min(560px,100%);max-height:88vh;overflow:auto;box-shadow:0 24px 60px -20px rgba(0,0,0,.5);
+}
+.modal-head{display:flex;align-items:center;gap:12px;padding:15px 18px;border-bottom:1px solid var(--line)}
+.modal-head h3{font-size:15px}
+.modal-body{padding:18px;display:flex;flex-direction:column;gap:14px}
+.modal-foot{display:flex;gap:9px;justify-content:flex-end;padding:14px 18px;border-top:1px solid var(--line);background:var(--surface-2)}
+.modal.wide{width:min(880px,100%)}
+
+.toast{
+  position:fixed;left:50%;bottom:26px;transform:translate(-50%,14px);
+  background:var(--rail);color:#fff;padding:10px 16px;border-radius:6px;font-size:13px;
+  opacity:0;pointer-events:none;transition:.2s;z-index:200;box-shadow:0 10px 30px -12px rgba(0,0,0,.6);
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+.note{
+  display:flex;gap:9px;padding:10px 13px;border-radius:var(--r);font-size:12.5px;
+  background:color-mix(in srgb,var(--accent) 7%,var(--surface));
+  border:1px solid color-mix(in srgb,var(--accent) 22%,var(--surface));
+  color:var(--ink-2);line-height:1.45;
+}
+.note svg{flex:none;margin-top:1px;color:var(--accent)}
+
+/* progress bar for stock level / compliance */
+.meter{height:5px;border-radius:3px;background:var(--surface-3);overflow:hidden;min-width:70px}
+.meter > i{display:block;height:100%;border-radius:3px;background:var(--accent)}
+.meter.good > i{background:var(--good)}
+.meter.warn > i{background:var(--warn)}
+.meter.crit > i{background:var(--crit)}
+
+.doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+.doc-cell{
+  border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;
+  display:flex;flex-direction:column;gap:6px;background:var(--surface-2);
+}
+.doc-cell.missing{border-color:color-mix(in srgb,var(--crit) 40%,var(--surface));background:color-mix(in srgb,var(--crit) 6%,var(--surface))}
+.doc-cell .d-name{font-size:12.5px;font-weight:600}
+.doc-cell .d-meta{font-size:11px;color:var(--ink-3)}
+
+.stack{display:flex;flex-direction:column;gap:16px}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+
+/* ============================== RESPONSIVE ============================== */
+@media (max-width:1120px){
+  .kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .g-main{grid-template-columns:minmax(0,1fr)}
+  .g-3{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:860px){
+  .app{grid-template-columns:1fr}
+  .rail{position:static;height:auto;flex-direction:column}
+  .nav{flex-direction:row;overflow-x:auto;padding:8px;gap:4px}
+  .nav-group{display:none}
+  .nav-item{white-space:nowrap}
+  .nav-item .tag{display:none}
+  .nav-item[aria-current="page"]::before{left:0;top:auto;bottom:-8px;width:auto;right:0;height:2px}
+  .rail-foot{display:none}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .g-2,.g-3{grid-template-columns:minmax(0,1fr)}
+  .view{padding:16px 14px 48px}
+  .topbar{padding:10px 14px}
+  .field-row{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion: reduce){
+  *{transition:none !important;animation:none !important}
+}
+</style>
+
+<div class="app">
+  <!-- ============================== RAIL ============================== -->
+  <aside class="rail">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+          <rect x="1" y="13" width="20" height="3" rx="1" fill="#DE6A1F"/>
+          <rect x="3.5" y="16" width="2.5" height="5" rx="1" fill="#8A9196"/>
+          <rect x="16" y="16" width="2.5" height="5" rx="1" fill="#8A9196"/>
+          <rect x="5" y="6" width="5" height="7" rx="1" fill="#3A88C0"/>
+          <rect x="12" y="2" width="5" height="11" rx="1" fill="#17A184"/>
+        </svg>
+        <span class="brand-name">Bancada</span>
+      </div>
+      <div class="brand-sub">Gestão de chão de fábrica</div>
+    </div>
+
+    <nav class="nav" id="nav" aria-label="Módulos">
+      <div class="nav-group">Operação</div>
+      <button class="nav-item" data-view="painel"><span>Painel</span></button>
+      <button class="nav-item" data-view="estoque"><span>Estoque</span><span class="badge" id="badge-estoque" hidden>0</span></button>
+      <button class="nav-item" data-view="movimentos"><span>Entradas e saídas</span></button>
+      <button class="nav-item" data-view="fornecedores"><span>Fornecedores</span></button>
+
+      <div class="nav-group">Financeiro</div>
+      <button class="nav-item" data-view="notas"><span>Notas fiscais</span></button>
+      <button class="nav-item" data-view="pagar"><span>Contas a pagar</span><span class="badge" id="badge-pagar" hidden>0</span></button>
+      <button class="nav-item" data-view="contabil"><span>Portal do contador</span></button>
+
+      <div class="nav-group">Pessoas</div>
+      <button class="nav-item" data-view="equipe"><span>Equipe e documentos</span><span class="badge" id="badge-equipe" hidden>0</span></button>
+    </nav>
+
+    <div class="rail-foot">
+      <button id="btn-theme" type="button">Tema</button>
+      <button id="btn-reset" type="button">Recarregar demo</button>
+    </div>
+  </aside>
+
+  <!-- ============================== MAIN ============================== -->
+  <div class="main">
+    <header class="topbar">
+      <span class="title" id="view-title">Painel</span>
+      <span class="sep" aria-hidden="true"></span>
+      <span class="eyebrow" id="view-sub">Visão geral</span>
+      <span class="spacer"></span>
+      <span class="chip accent" title="Base fictícia, rodando só no seu navegador">demonstração</span>
+      <div class="co">
+        <span class="co-badge">ME</span>
+        <span>
+          <span class="co-name">Metalúrgica Exemplo Ltda.</span><br>
+          <span class="co-meta mono" id="today">—</span>
+        </span>
+      </div>
+    </header>
+
+    <section class="view active" id="view-painel"></section>
+    <section class="view" id="view-estoque"></section>
+    <section class="view" id="view-movimentos"></section>
+    <section class="view" id="view-fornecedores"></section>
+    <section class="view" id="view-notas"></section>
+    <section class="view" id="view-pagar"></section>
+    <section class="view" id="view-contabil"></section>
+    <section class="view" id="view-equipe"></section>
+  </div>
+</div>
+
+<div class="scrim" id="scrim" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal" id="modal">
+    <div class="modal-head"><h3 id="modal-title">—</h3><span class="spacer"></span>
+      <button class="btn ghost sm" type="button" id="modal-x" aria-label="Fechar">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-foot" id="modal-foot"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+
+/* ==================================================================
+   1. UTILIDADES
+   ================================================================== */
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+
+const BRL = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+const NUM = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 2 });
+const money = v => BRL.format(v || 0);
+const moneyShort = v => {
+  const a = Math.abs(v);
+  if (a >= 1e6) return "R$ " + NUM.format(v / 1e6).replace(/,\d+$/, m => m.slice(0, 2)) + " mi";
+  if (a >= 1e3) return "R$ " + Math.round(v / 1e3) + " mil";
+  return money(v);
+};
+const qty = v => NUM.format(v);
+
+const MS_DIA = 86400000;
+const hoje = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; };
+const addDias = (d, n) => new Date(d.getTime() + n * MS_DIA);
+const iso = d => d.toISOString().slice(0, 10);
+const fromISO = s => { const [a, m, dd] = s.split("-").map(Number); return new Date(a, m - 1, dd); };
+const fmtData = s => { const d = fromISO(s); return String(d.getDate()).padStart(2, "0") + "/" + String(d.getMonth() + 1).padStart(2, "0") + "/" + d.getFullYear(); };
+const fmtDataCurta = s => { const d = fromISO(s); return String(d.getDate()).padStart(2, "0") + "/" + String(d.getMonth() + 1).padStart(2, "0"); };
+const diasAte = s => Math.round((fromISO(s) - hoje()) / MS_DIA);
+const competencia = s => s.slice(0, 7);
+const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+const MESES_LONGOS = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+const rotuloComp = c => { const [a, m] = c.split("-"); return MESES_LONGOS[+m - 1] + " de " + a; };
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const uid = (() => { let n = 1000; return p => p + "-" + (++n); })();
+
+function toast(msg) {
+  const t = $("#toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => t.classList.remove("show"), 2600);
+}
+
+/* Escolhe determinísticamente a partir de uma lista (evita aleatoriedade instável) */
+function pick(arr, i) { return arr[i % arr.length]; }
+
+/* ==================================================================
+   2. DADOS DE DEMONSTRAÇÃO
+   ================================================================== */
+const CHAVE_ARMAZENAMENTO = "bancada.demo.v1";
+
+function semear() {
+  const h = hoje();
+
+  const materiais = [
+    { id: "m1", codigo: "CH-1020-3", nome: "Chapa de aço 1020 · 3 mm", unidade: "kg",  minimo: 800,  local: "Galpão A · Prateleira 1", custo: 8.40 },
+    { id: "m2", codigo: "TB-IND-2",  nome: "Tubo industrial 2\" · 6 m",  unidade: "pç",  minimo: 60,   local: "Galpão A · Cavalete",     custo: 132.00 },
+    { id: "m3", codigo: "EL-6013",   nome: "Eletrodo 6013 · 3,25 mm",    unidade: "kg",  minimo: 120,  local: "Almox. · Estante 3",      custo: 27.90 },
+    { id: "m4", codigo: "DC-180",    nome: "Disco de corte 180 mm",      unidade: "un",  minimo: 150,  local: "Almox. · Estante 1",      custo: 9.10 },
+    { id: "m5", codigo: "TN-EPX-BR", nome: "Tinta epóxi branca",         unidade: "L",   minimo: 90,   local: "Pintura · Armário",       custo: 61.50 },
+    { id: "m6", codigo: "RL-6205",   nome: "Rolamento 6205 2RS",         unidade: "un",  minimo: 40,   local: "Almox. · Gaveta 7",       custo: 34.80 },
+    { id: "m7", codigo: "OL-HD68",   nome: "Óleo hidráulico ISO 68",     unidade: "L",   minimo: 200,  local: "Manutenção · Tanque",     custo: 18.20 },
+    { id: "m8", codigo: "EPI-LV-VQ", nome: "Luva vaqueta cano curto",    unidade: "par", minimo: 80,   local: "Almox. · EPI",            custo: 21.40 },
+    { id: "m9", codigo: "EPI-BT-BC", nome: "Botina de segurança bico composite", unidade: "par", minimo: 25, local: "Almox. · EPI",       custo: 148.00 },
+    { id: "m10", codigo: "PF-M12",   nome: "Parafuso sextavado M12 × 60", unidade: "un", minimo: 900,  local: "Almox. · Gaveta 2",       custo: 2.35 }
+  ];
+
+  const fornecedores = [
+    { id: "f1", nome: "Aço Minas Distribuidora",  cnpj: "18.442.907/0001-33", contato: "Rogério Paiva",  telefone: "(34) 3212-8800", categoria: "Matéria-prima", prazo: "28/56/84 dias" },
+    { id: "f2", nome: "Ferramentas Triângulo",    cnpj: "07.913.556/0001-02", contato: "Léia Marques",   telefone: "(34) 3235-4110", categoria: "Consumíveis",   prazo: "30 dias" },
+    { id: "f3", nome: "Metalpar Suprimentos",     cnpj: "22.108.774/0001-91", contato: "Elias Tavares",  telefone: "(34) 99671-2204", categoria: "Componentes",  prazo: "30/60 dias" },
+    { id: "f4", nome: "Tintas Uberaba Indústria", cnpj: "05.660.219/0001-47", contato: "Márcia Bueno",   telefone: "(34) 3338-9012", categoria: "Acabamento",    prazo: "À vista" },
+    { id: "f5", nome: "Rolamentos MG Comércio",   cnpj: "31.775.480/0001-18", contato: "Douglas Amaral", telefone: "(31) 3444-2255", categoria: "Componentes",   prazo: "30/60 dias" },
+    { id: "f6", nome: "EPI Segura Equipamentos",  cnpj: "12.099.331/0001-70", contato: "Silvana Rocha",  telefone: "(34) 3216-7788", categoria: "Segurança",     prazo: "28 dias" }
+  ];
+
+  /* ---- Notas fiscais dos últimos 5 meses ---- */
+  const modelosNota = [
+    { forn: "f1", mats: [["m1", 1200], ["m2", 40]], parcelas: 3 },
+    { forn: "f2", mats: [["m3", 90], ["m4", 200]],  parcelas: 1 },
+    { forn: "f3", mats: [["m10", 2500], ["m6", 60]], parcelas: 2 },
+    { forn: "f4", mats: [["m5", 120]],               parcelas: 1 },
+    { forn: "f5", mats: [["m6", 80]],                parcelas: 2 },
+    { forn: "f6", mats: [["m8", 120], ["m9", 30]],   parcelas: 2 },
+    { forn: "f1", mats: [["m1", 900]],               parcelas: 3 },
+    { forn: "f2", mats: [["m4", 320], ["m7", 400]],  parcelas: 1 }
+  ];
+
+  const notas = [];
+  const titulos = [];
+  const movimentos = [];
+  let numeroNota = 41800;
+
+  // uma leva de notas por mês, dos 5 meses anteriores até o mês corrente
+  for (let volta = 5; volta >= 0; volta--) {
+    const base = new Date(h.getFullYear(), h.getMonth() - volta, 1);
+    const notasDoMes = volta === 0 ? 5 : 6;
+    for (let k = 0; k < notasDoMes; k++) {
+      const modelo = pick(modelosNota, volta * 3 + k);
+      const dia = Math.min(2 + k * 5 + (volta % 3) * 2, 27);
+      const emissao = new Date(base.getFullYear(), base.getMonth(), dia);
+      if (emissao > h) continue;
+
+      const itens = modelo.mats.map(([mid, q]) => {
+        const mat = materiais.find(m => m.id === mid);
+        const quantidade = Math.round(q * (0.8 + ((k % 4) * 0.12)));
+        return { materialId: mid, qtd: quantidade, unitario: +(mat.custo * (0.94 + (volta % 3) * 0.03)).toFixed(2) };
+      });
+      const valor = +itens.reduce((s, i) => s + i.qtd * i.unitario, 0).toFixed(2);
+
+      const notaId = "nf" + (++numeroNota);
+      const temXml = !(volta === 0 && k === 3);
+      const temPdf = !(volta === 0 && (k === 3 || k === 4));
+
+      notas.push({
+        id: notaId,
+        numero: String(numeroNota),
+        serie: "1",
+        fornecedorId: modelo.forn,
+        emissao: iso(emissao),
+        valor,
+        chave: "3126" + String(numeroNota).padStart(6, "0") + "550010000" + String(numeroNota) + "1" + String(700000000 + numeroNota * 7),
+        itens,
+        arquivos: [
+          temXml ? { tipo: "XML", nome: "NFe-" + numeroNota + ".xml", tamanho: "18 KB" } : null,
+          temPdf ? { tipo: "DANFE", nome: "DANFE-" + numeroNota + ".pdf", tamanho: "142 KB" } : null,
+          k === 1 ? { tipo: "Boleto", nome: "boleto-" + numeroNota + ".pdf", tamanho: "88 KB" } : null
+        ].filter(Boolean)
+      });
+
+      // Entrada de material vinculada à nota
+      itens.forEach(it => movimentos.push({
+        id: uid("mv"), data: iso(emissao), materialId: it.materialId, tipo: "entrada",
+        qtd: it.qtd, doc: "NF " + numeroNota, responsavel: "Almoxarifado", obs: ""
+      }));
+
+      // Título e parcelas — tudo que já venceu nasce quitado; o atraso é
+      // aplicado depois, sobre a lista completa, para a demo ter sempre
+      // duas parcelas em aberto no vermelho.
+      const n = modelo.parcelas;
+      const parcelas = [];
+      for (let p = 1; p <= n; p++) {
+        const venc = addDias(emissao, 28 * p);
+        const vencido = venc < h;
+        parcelas.push({
+          n: p, valor: +(valor / n).toFixed(2), vencimento: iso(venc),
+          pago: vencido,
+          pagoEm: vencido ? iso(addDias(venc, -(p % 3))) : null,
+          comprovante: vencido ? { nome: "comprovante-" + numeroNota + "-" + p + ".pdf", tamanho: "64 KB" } : null
+        });
+      }
+      titulos.push({
+        id: uid("tt"), notaId, fornecedorId: modelo.forn,
+        descricao: "NF " + numeroNota + " · " + fornecedores.find(f => f.id === modelo.forn).nome,
+        valor, parcelas
+      });
+    }
+  }
+
+  /* ---- Saídas de material (requisições de produção) ---- */
+  const ordens = ["OS-2431", "OS-2432", "OS-2437", "OS-2440", "OS-2444", "OS-2451", "OS-2455", "OS-2460"];
+  const setores = ["Solda", "Usinagem", "Pintura", "Montagem", "Manutenção"];
+  for (let d = 195; d >= 0; d -= 2) {
+    const data = addDias(h, -d);
+    if (data.getDay() === 0) continue;
+    const qtdSaidas = 1 + (d % 3);
+    for (let s = 0; s < qtdSaidas; s++) {
+      const mat = pick(materiais, d + s * 3);
+      const base = Math.max(1, Math.round(mat.minimo * 0.17));
+      movimentos.push({
+        id: uid("mv"), data: iso(data), materialId: mat.id, tipo: "saida",
+        qtd: base + ((d + s) % 5) * Math.max(1, Math.round(base * 0.25)),
+        doc: pick(ordens, d + s), responsavel: pick(setores, d + s), obs: ""
+      });
+    }
+  }
+
+  /* Nenhuma saída pode deixar o saldo negativo: percorre em ordem
+     cronológica e descarta a requisição que não teria material. */
+  movimentos.sort((a, b) => a.data.localeCompare(b.data) || (a.tipo === "entrada" ? -1 : 1));
+  const saldoCorrente = Object.create(null);
+  const movimentosValidos = [];
+  movimentos.forEach(mv => {
+    const atual = saldoCorrente[mv.materialId] || 0;
+    if (mv.tipo === "saida" && mv.qtd > atual) return;
+    saldoCorrente[mv.materialId] = atual + (mv.tipo === "entrada" ? mv.qtd : -mv.qtd);
+    movimentosValidos.push(mv);
+  });
+  movimentos.length = 0;
+  movimentos.push(...movimentosValidos);
+
+  /* ---- Equipe ---- */
+  const pessoas = [
+    { nome: "Cássio Bertoldo Nunes", cargo: "Encarregado de produção", setor: "Produção",   admissao: "2019-03-11", cpf: "022.418.776-05" },
+    { nome: "Juliana Prado Ferreira", cargo: "Analista administrativo", setor: "Administrativo", admissao: "2021-08-02", cpf: "104.775.226-90" },
+    { nome: "Wesley Dias Alcântara",  cargo: "Soldador II",             setor: "Solda",     admissao: "2020-01-20", cpf: "078.334.116-22" },
+    { nome: "Rafael Moura Siqueira",  cargo: "Torneiro mecânico",       setor: "Usinagem",  admissao: "2022-05-16", cpf: "133.902.446-71" },
+    { nome: "Adriana Lopes Vieira",   cargo: "Auxiliar de produção",    setor: "Montagem",  admissao: "2023-02-06", cpf: "156.884.006-14" },
+    { nome: "Márcio Antônio Rezende", cargo: "Mecânico de manutenção",  setor: "Manutenção", admissao: "2018-11-05", cpf: "015.663.336-48" },
+    { nome: "Tiago Barbosa Ramos",    cargo: "Pintor industrial",       setor: "Pintura",   admissao: "2024-04-01", cpf: "179.220.916-33" },
+    { nome: "Eliane Cristina Souto",  cargo: "Auxiliar de almoxarifado", setor: "Almoxarifado", admissao: "2024-09-23", cpf: "188.457.706-59" }
+  ];
+
+  const compsRecentes = [];
+  for (let i = 2; i >= 0; i--) {
+    const d = new Date(h.getFullYear(), h.getMonth() - i, 1);
+    compsRecentes.push(iso(d).slice(0, 7));
+  }
+
+  /* Reabre as duas parcelas vencidas mais recentes: a demo precisa mostrar
+     o alerta de atraso funcionando, e isso independe da data de hoje. */
+  const vencidasOrdenadas = [];
+  titulos.forEach(t => t.parcelas.forEach(p => { if (p.pago) vencidasOrdenadas.push(p); }));
+  vencidasOrdenadas.sort((a, b) => b.vencimento.localeCompare(a.vencimento));
+  vencidasOrdenadas.slice(1, 3).forEach(p => { p.pago = false; p.pagoEm = null; p.comprovante = null; });
+
+  const colaboradores = pessoas.map((p, i) => {
+    const docs = [];
+    // documentos permanentes
+    DOCS_PERMANENTES.forEach((tipo, j) => {
+      // duas pendências propositais para a demo
+      const faltando = (i === 6 && tipo === "ASO periódico") || (i === 7 && tipo === "Ficha de EPI");
+      if (faltando) return;
+      docs.push({
+        tipo, competencia: null,
+        nome: tipo.toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + p.nome.split(" ")[0].toLowerCase() + ".pdf",
+        tamanho: (60 + ((i + j) % 9) * 22) + " KB",
+        enviadoEm: iso(addDias(h, -(40 + i * 7 + j * 3)))
+      });
+    });
+    // documentos mensais
+    compsRecentes.forEach((c, ci) => {
+      DOCS_MENSAIS.forEach((tipo, j) => {
+        const mesAtual = ci === compsRecentes.length - 1;
+        // mês corrente: folha ainda em fechamento para parte da equipe
+        const faltando = mesAtual && (i % 3 === 0 || (i === 4 && tipo !== "Cartão de ponto"));
+        if (faltando) return;
+        docs.push({
+          tipo, competencia: c,
+          nome: tipo.toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + c + "-" + p.nome.split(" ")[0].toLowerCase() + ".pdf",
+          tamanho: (40 + ((i + j + ci) % 7) * 18) + " KB",
+          enviadoEm: iso(addDias(fromISO(c + "-05"), j))
+        });
+      });
+    });
+    return { id: "c" + (i + 1), ...p, matricula: String(1040 + i * 3), docs };
+  });
+
+  return { materiais, fornecedores, notas, titulos, movimentos, colaboradores, criadoEm: iso(h) };
+}
+
+const DOCS_MENSAIS = ["Holerite", "Cartão de ponto", "Comprovante de pagamento"];
+const DOCS_PERMANENTES = ["Contrato de trabalho", "Documento de identidade", "ASO admissional", "ASO periódico", "Ficha de EPI"];
+
+/* ==================================================================
+   3. ESTADO
+   ================================================================== */
+let db;
+let armazenamentoOk = true;
+
+function carregar() {
+  try {
+    const bruto = localStorage.getItem(CHAVE_ARMAZENAMENTO);
+    if (bruto) {
+      const dados = JSON.parse(bruto);
+      // Se o demo foi semeado em outro dia, resemeia para as datas ficarem coerentes
+      if (dados.criadoEm === iso(hoje())) return dados;
+    }
+  } catch (e) { armazenamentoOk = false; }
+  const novo = semear();
+  salvar(novo);
+  return novo;
+}
+function salvar(dados) {
+  if (!armazenamentoOk) return;
+  try { localStorage.setItem(CHAVE_ARMAZENAMENTO, JSON.stringify(dados || db)); }
+  catch (e) { armazenamentoOk = false; }
+}
+
+/* ==================================================================
+   4. CONSULTAS DERIVADAS
+   ================================================================== */
+const material = id => db.materiais.find(m => m.id === id);
+const fornecedor = id => db.fornecedores.find(f => f.id === id);
+const nota = id => db.notas.find(n => n.id === id);
+
+function saldo(materialId) {
+  return db.movimentos.reduce((s, mv) =>
+    mv.materialId === materialId ? s + (mv.tipo === "entrada" ? mv.qtd : -mv.qtd) : s, 0);
+}
+function saldosTodos() {
+  const mapa = Object.create(null);
+  db.materiais.forEach(m => (mapa[m.id] = 0));
+  db.movimentos.forEach(mv => { mapa[mv.materialId] += mv.tipo === "entrada" ? mv.qtd : -mv.qtd; });
+  return mapa;
+}
+function valorEmEstoque() {
+  const s = saldosTodos();
+  return db.materiais.reduce((t, m) => t + Math.max(0, s[m.id]) * m.custo, 0);
+}
+function materiaisCriticos() {
+  const s = saldosTodos();
+  return db.materiais
+    .map(m => ({ ...m, saldo: s[m.id], razao: m.minimo ? s[m.id] / m.minimo : 1 }))
+    .filter(m => m.razao < 1)
+    .sort((a, b) => a.razao - b.razao);
+}
+
+function todasParcelas() {
+  const lista = [];
+  db.titulos.forEach(t => t.parcelas.forEach(p => lista.push({ ...p, tituloId: t.id, fornecedorId: t.fornecedorId, notaId: t.notaId, descricao: t.descricao })));
+  return lista;
+}
+function statusParcela(p) {
+  if (p.pago) return { chave: "pago", rotulo: "Pago", classe: "good" };
+  const d = diasAte(p.vencimento);
+  if (d < 0) return { chave: "vencido", rotulo: "Vencido há " + Math.abs(d) + "d", classe: "crit" };
+  if (d === 0) return { chave: "hoje", rotulo: "Vence hoje", classe: "crit" };
+  if (d <= 7) return { chave: "proximo", rotulo: "Vence em " + d + "d", classe: "warn" };
+  return { chave: "aberto", rotulo: "Vence em " + d + "d", classe: "neutral" };
+}
+function parcelasVencidas() { return todasParcelas().filter(p => !p.pago && diasAte(p.vencimento) < 0); }
+function parcelasProximas(dias = 7) {
+  return todasParcelas().filter(p => !p.pago && diasAte(p.vencimento) >= 0 && diasAte(p.vencimento) <= dias);
+}
+
+function notasSemArquivo() {
+  return db.notas.filter(n => !n.arquivos.some(a => a.tipo === "XML") || !n.arquivos.some(a => a.tipo === "DANFE"));
+}
+
+function pendenciasColaborador(col, comp) {
+  const faltando = [];
+  DOCS_PERMANENTES.forEach(t => {
+    if (!col.docs.some(d => d.tipo === t && !d.competencia)) faltando.push({ tipo: t, competencia: null });
+  });
+  DOCS_MENSAIS.forEach(t => {
+    if (!col.docs.some(d => d.tipo === t && d.competencia === comp)) faltando.push({ tipo: t, competencia: comp });
+  });
+  return faltando;
+}
+function conformidadeEquipe(comp) {
+  const total = db.colaboradores.length * (DOCS_PERMANENTES.length + DOCS_MENSAIS.length);
+  let pendentes = 0;
+  db.colaboradores.forEach(c => { pendentes += pendenciasColaborador(c, comp).length; });
+  return { total, pendentes, ok: total - pendentes, pct: total ? Math.round(((total - pendentes) / total) * 100) : 100 };
+}
+
+function compAtual() { return iso(hoje()).slice(0, 7); }
+function competenciasDisponiveis() {
+  const set = new Set(db.notas.map(n => competencia(n.emissao)));
+  set.add(compAtual());
+  return Array.from(set).sort().reverse();
+}
+
+function ultimosMeses(n) {
+  const h = hoje(); const out = [];
+  for (let i = n - 1; i >= 0; i--) {
+    const d = new Date(h.getFullYear(), h.getMonth() - i, 1);
+    out.push({ comp: iso(d).slice(0, 7), rotulo: MESES[d.getMonth()], ano: d.getFullYear() });
+  }
+  return out;
+}
+
+/* ==================================================================
+   5. GRÁFICOS (SVG à mão — sem dependências externas)
+   ================================================================== */
+function svgEl(tag, attrs) {
+  const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  for (const k in attrs) el.setAttribute(k, attrs[k]);
+  return el;
+}
+function escalaEixo(max) {
+  if (max <= 0) return { max: 1, passos: [0, 1] };
+  const mag = Math.pow(10, Math.floor(Math.log10(max)));
+  const passo = [1, 2, 2.5, 5, 10].find(p => p * mag >= max / 4) * mag;
+  const topo = Math.ceil(max / passo) * passo;
+  const passos = [];
+  for (let v = 0; v <= topo + 1e-9; v += passo) passos.push(v);
+  return { max: topo, passos };
+}
+
+/* Barras agrupadas verticais com eixo, grade recuada e tooltip */
+function barrasAgrupadas(container, { categorias, series, formata }) {
+  container.innerHTML = "";
+  const wrap = document.createElement("div");
+  wrap.className = "chart-wrap";
+  const tip = document.createElement("div");
+  tip.className = "tip";
+  const L = 54, R = 8, T = 12, B = 26, H = 210;
+  const W = Math.max(320, container.clientWidth || 520);
+  const svg = svgEl("svg", { class: "chart", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Gráfico de barras" });
+
+  const max = Math.max(1, ...series.flatMap(s => s.valores));
+  const { max: topo, passos } = escalaEixo(max);
+  const pw = W - L - R, ph = H - T - B;
+  const y = v => T + ph - (v / topo) * ph;
+
+  passos.forEach(v => {
+    svg.appendChild(svgEl("line", { class: "grid-line", x1: L, x2: W - R, y1: y(v), y2: y(v) }));
+    const t = svgEl("text", { class: "axis-text", x: L - 8, y: y(v) + 3.5, "text-anchor": "end" });
+    t.textContent = formata ? formata(v, true) : NUM.format(v);
+    svg.appendChild(t);
+  });
+
+  const bandW = pw / categorias.length;
+  const nS = series.length;
+  const gap = 2;
+  const barW = Math.max(5, Math.min(26, (bandW * 0.62 - gap * (nS - 1)) / nS));
+
+  categorias.forEach((cat, i) => {
+    const cx = L + bandW * i + bandW / 2;
+    const totalW = barW * nS + gap * (nS - 1);
+    series.forEach((s, j) => {
+      const v = s.valores[i] || 0;
+      const alt = Math.max(v > 0 ? 2 : 0, ph - (y(v) - T));
+      const x = cx - totalW / 2 + j * (barW + gap);
+      const r = svgEl("rect", {
+        class: "bar", x, y: T + ph - alt, width: barW, height: alt,
+        rx: Math.min(4, barW / 2), fill: s.cor
+      });
+      svg.appendChild(r);
+    });
+    const t = svgEl("text", { class: "axis-text", x: cx, y: H - 8, "text-anchor": "middle" });
+    t.textContent = cat;
+    svg.appendChild(t);
+
+    // faixa transparente para hover da categoria inteira
+    const hit = svgEl("rect", { x: L + bandW * i, y: T, width: bandW, height: ph, fill: "transparent" });
+    hit.addEventListener("mousemove", ev => {
+      const box = wrap.getBoundingClientRect();
+      tip.style.left = (ev.clientX - box.left) + "px";
+      tip.style.top = (ev.clientY - box.top - 8) + "px";
+      tip.innerHTML = '<div class="t-h">' + esc(cat) + "</div>" +
+        series.map(s => '<div class="t-r"><span class="sw" style="background:' + s.cor + '"></span>' +
+          esc(s.nome) + "<b>" + (formata ? formata(s.valores[i]) : NUM.format(s.valores[i])) + "</b></div>").join("");
+      tip.style.opacity = "1";
+    });
+    hit.addEventListener("mouseleave", () => { tip.style.opacity = "0"; });
+    svg.appendChild(hit);
+  });
+
+  wrap.appendChild(svg);
+  wrap.appendChild(tip);
+  container.appendChild(wrap);
+}
+
+/* Barras horizontais, uma série, com rótulo direto ao lado */
+function barrasHorizontais(container, { itens, cor, formata }) {
+  container.innerHTML = "";
+  if (!itens.length) { container.innerHTML = '<div class="empty">Sem dados no período.</div>'; return; }
+  const max = Math.max(...itens.map(i => i.valor)) || 1;
+  const lista = document.createElement("div");
+  lista.style.display = "flex";
+  lista.style.flexDirection = "column";
+  lista.style.gap = "11px";
+  itens.forEach(it => {
+    const linha = document.createElement("div");
+    linha.style.display = "grid";
+    linha.style.gridTemplateColumns = "minmax(0,1fr) auto";
+    linha.style.gap = "4px 12px";
+    linha.style.alignItems = "center";
+    linha.innerHTML =
+      '<div style="font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(it.rotulo) + "</div>" +
+      '<div class="mono" style="font-size:12.5px;font-weight:600">' + (formata ? formata(it.valor) : NUM.format(it.valor)) + "</div>" +
+      '<div style="grid-column:1/-1;height:9px;background:var(--surface-3);border-radius:4px;overflow:hidden">' +
+        '<div style="height:100%;width:' + Math.max(2, (it.valor / max) * 100) + '%;background:' + cor + ';border-radius:4px"></div>' +
+      "</div>";
+    linha.title = it.rotulo + " — " + (formata ? formata(it.valor) : NUM.format(it.valor));
+    lista.appendChild(linha);
+  });
+  container.appendChild(lista);
+}
+
+/* ==================================================================
+   6. MODAL
+   ================================================================== */
+function abrirModal({ titulo, corpo, acoes = [], largo = false }) {
+  $("#modal-title").textContent = titulo;
+  $("#modal-body").innerHTML = corpo;
+  $("#modal").classList.toggle("wide", !!largo);
+  const foot = $("#modal-foot");
+  foot.innerHTML = "";
+  acoes.forEach(a => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "btn" + (a.primaria ? " primary" : "");
+    b.textContent = a.rotulo;
+    b.addEventListener("click", () => a.aoClicar ? a.aoClicar() : fecharModal());
+    foot.appendChild(b);
+  });
+  foot.style.display = acoes.length ? "" : "none";
+  $("#scrim").classList.add("open");
+  const primeiro = $("#modal-body input, #modal-body select, #modal-body textarea");
+  if (primeiro) setTimeout(() => primeiro.focus(), 30);
+}
+function fecharModal() {
+  $("#scrim").classList.remove("open");
+}
+$("#modal-x").addEventListener("click", fecharModal);
+$("#scrim").addEventListener("mousedown", e => { if (e.target.id === "scrim") fecharModal(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") fecharModal(); });
+
+function valoresDoModal() {
+  const out = {};
+  $$("#modal-body [name]").forEach(el => { out[el.name] = el.type === "checkbox" ? el.checked : el.value; });
+  return out;
+}
+
+/* Visualizador de arquivo (o demo não hospeda o binário — mostra a ficha do arquivo) */
+function verArquivo(nome, contexto) {
+  abrirModal({
+    titulo: "Arquivo",
+    corpo:
+      '<div class="row" style="gap:12px;align-items:flex-start">' +
+        '<div style="width:44px;height:56px;border:1px solid var(--line-strong);border-radius:4px;display:grid;place-items:center;background:var(--surface-2);font-size:10px;font-weight:700;color:var(--ink-3)">' +
+        esc((nome.split(".").pop() || "").toUpperCase()) + "</div>" +
+        '<div><div class="t-strong mono" style="font-size:13px;word-break:break-all">' + esc(nome) + "</div>" +
+        '<div class="t-sub" style="margin-top:3px">' + esc(contexto || "") + "</div></div>" +
+      "</div>" +
+      '<div class="note"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><path d="M8 7.2v4M8 4.8v.6"/></svg>' +
+      "<span>Nesta demonstração os arquivos são referenciados, não hospedados. No sistema entregue, este botão abre o documento e o pacote mensal sai em <strong>.zip</strong> direto para a contabilidade.</span></div>",
+    acoes: [{ rotulo: "Fechar", primaria: true }]
+  });
+}
+
+/* ==================================================================
+   7. NAVEGAÇÃO
+   ================================================================== */
+const VIEWS = {
+  painel:       { titulo: "Painel",               sub: "Visão geral",              render: renderPainel },
+  estoque:      { titulo: "Estoque",              sub: "Saldos e mínimos",         render: renderEstoque },
+  movimentos:   { titulo: "Entradas e saídas",    sub: "Movimentação de material", render: renderMovimentos },
+  fornecedores: { titulo: "Fornecedores",         sub: "Cadastro e histórico",     render: renderFornecedores },
+  notas:        { titulo: "Notas fiscais",        sub: "Entrada de documentos",    render: renderNotas },
+  pagar:        { titulo: "Contas a pagar",       sub: "Parcelas e vencimentos",   render: renderPagar },
+  contabil:     { titulo: "Portal do contador",   sub: "Fechamento mensal",        render: renderContabil },
+  equipe:       { titulo: "Equipe e documentos",  sub: "Pasta do colaborador",     render: renderEquipe }
+};
+let viewAtual = "painel";
+const filtros = {
+  estoqueBusca: "", estoqueSoCriticos: false,
+  movBusca: "", movTipo: "todos",
+  notaComp: null, notaForn: "todos",
+  pagarStatus: "abertos",
+  contabilComp: null,
+  equipeComp: null, equipeSoPendentes: false
+};
+
+function irPara(v) {
+  if (!VIEWS[v]) v = "painel";
+  viewAtual = v;
+  if (location.hash.slice(1) !== v) history.replaceState(null, "", "#" + v);
+  $$("#nav .nav-item").forEach(b => b.setAttribute("aria-current", b.dataset.view === v ? "page" : "false"));
+  $$(".view").forEach(s => s.classList.toggle("active", s.id === "view-" + v));
+  $("#view-title").textContent = VIEWS[v].titulo;
+  $("#view-sub").textContent = VIEWS[v].sub;
+  VIEWS[v].render();
+  window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
+}
+$("#nav").addEventListener("click", e => {
+  const b = e.target.closest(".nav-item");
+  if (b) irPara(b.dataset.view);
+});
+
+function atualizarBadges() {
+  const def = [
+    ["#badge-estoque", materiaisCriticos().length],
+    ["#badge-pagar", parcelasVencidas().length + parcelasProximas(7).length],
+    ["#badge-equipe", db.colaboradores.reduce((s, c) => s + (pendenciasColaborador(c, compAtual()).length ? 1 : 0), 0)]
+  ];
+  def.forEach(([sel, n]) => {
+    const el = $(sel);
+    el.textContent = n;
+    el.hidden = n === 0;
+  });
+}
+
+function redesenhar() {
+  salvar();
+  atualizarBadges();
+  VIEWS[viewAtual].render();
+}
+
+/* ==================================================================
+   8. PAINEL
+   ================================================================== */
+function renderPainel() {
+  const view = $("#view-painel");
+  const criticos = materiaisCriticos();
+  const vencidas = parcelasVencidas();
+  const proximas = parcelasProximas(7);
+  const comp = compAtual();
+  const notasMes = db.notas.filter(n => competencia(n.emissao) === comp);
+  const conf = conformidadeEquipe(comp);
+  const semArquivo = notasSemArquivo().filter(n => competencia(n.emissao) === comp);
+  const totalVencido = vencidas.reduce((s, p) => s + p.valor, 0);
+  const totalProximo = proximas.reduce((s, p) => s + p.valor, 0);
+
+  const alertas = [];
+  vencidas.forEach(p => alertas.push({
+    nivel: "crit", titulo: "Parcela vencida · " + money(p.valor),
+    desc: p.descricao + " · parcela " + p.n + " venceu em " + fmtData(p.vencimento), ir: "pagar"
+  }));
+  criticos.slice(0, 4).forEach(m => alertas.push({
+    nivel: m.razao < 0.5 ? "crit" : "warn",
+    titulo: "Estoque abaixo do mínimo · " + m.nome,
+    desc: qty(m.saldo) + " " + m.unidade + " em estoque · mínimo " + qty(m.minimo) + " " + m.unidade, ir: "estoque"
+  }));
+  proximas.slice(0, 3).forEach(p => alertas.push({
+    nivel: "warn", titulo: "Vence em " + diasAte(p.vencimento) + " dias · " + money(p.valor),
+    desc: p.descricao + " · parcela " + p.n, ir: "pagar"
+  }));
+  semArquivo.forEach(n => alertas.push({
+    nivel: "warn", titulo: "NF " + n.numero + " sem arquivo completo",
+    desc: "Falta " + ["XML", "DANFE"].filter(t => !n.arquivos.some(a => a.tipo === t)).join(" e ") + " — a contabilidade vai cobrar no fechamento", ir: "notas"
+  }));
+  if (conf.pendentes) alertas.push({
+    nivel: "warn", titulo: conf.pendentes + " documento(s) de pessoal pendente(s)",
+    desc: "Competência " + rotuloComp(comp) + " · " + conf.pct + "% da pasta completa", ir: "equipe"
+  });
+
+  const meses = ultimosMeses(6);
+  const entradas = meses.map(m => db.movimentos.filter(mv => mv.tipo === "entrada" && competencia(mv.data) === m.comp)
+    .reduce((s, mv) => s + mv.qtd * (material(mv.materialId)?.custo || 0), 0));
+  const saidas = meses.map(m => db.movimentos.filter(mv => mv.tipo === "saida" && competencia(mv.data) === m.comp)
+    .reduce((s, mv) => s + mv.qtd * (material(mv.materialId)?.custo || 0), 0));
+
+  const porFornecedor = {};
+  db.notas.forEach(n => { porFornecedor[n.fornecedorId] = (porFornecedor[n.fornecedorId] || 0) + n.valor; });
+  const topForn = Object.entries(porFornecedor)
+    .map(([id, v]) => ({ rotulo: fornecedor(id).nome, valor: v }))
+    .sort((a, b) => b.valor - a.valor).slice(0, 6);
+
+  // agenda de pagamentos: próximas 6 semanas
+  const semanas = [];
+  for (let w = 0; w < 6; w++) {
+    const ini = addDias(hoje(), w * 7), fim = addDias(hoje(), w * 7 + 6);
+    const v = todasParcelas().filter(p => !p.pago && fromISO(p.vencimento) >= ini && fromISO(p.vencimento) <= fim)
+      .reduce((s, p) => s + p.valor, 0);
+    semanas.push({ rotulo: fmtDataCurta(iso(ini)), valor: v });
+  }
+
+  view.innerHTML = `
+    <div class="kpis">
+      <div class="kpi is-accent">
+        <span class="k-label">Valor em estoque</span>
+        <span class="k-value mono">${moneyShort(valorEmEstoque())}</span>
+        <span class="k-foot">${db.materiais.length} itens cadastrados</span>
+      </div>
+      <div class="kpi ${vencidas.length ? "is-crit" : "is-good"}">
+        <span class="k-label">Vencido</span>
+        <span class="k-value mono">${moneyShort(totalVencido)}</span>
+        <span class="k-foot"><strong>${vencidas.length}</strong> parcela(s) em atraso</span>
+      </div>
+      <div class="kpi ${proximas.length ? "is-warn" : "is-good"}">
+        <span class="k-label">A pagar em 7 dias</span>
+        <span class="k-value mono">${moneyShort(totalProximo)}</span>
+        <span class="k-foot"><strong>${proximas.length}</strong> parcela(s)</span>
+      </div>
+      <div class="kpi ${criticos.length ? "is-warn" : "is-good"}">
+        <span class="k-label">Abaixo do mínimo</span>
+        <span class="k-value mono">${criticos.length}</span>
+        <span class="k-foot">${criticos.length ? esc(criticos[0].nome) : "Nenhum item crítico"}</span>
+      </div>
+      <div class="kpi ${conf.pct === 100 ? "is-good" : "is-warn"}">
+        <span class="k-label">Pasta de pessoal</span>
+        <span class="k-value mono">${conf.pct}%</span>
+        <span class="k-foot"><strong>${conf.pendentes}</strong> pendência(s) · ${rotuloComp(comp)}</span>
+      </div>
+    </div>
+
+    <div class="grid g-main">
+      <div class="stack">
+        <div class="card">
+          <div class="card-head">
+            <h3>Movimentação de material</h3>
+            <span class="hint">Valorizada ao custo · últimos 6 meses</span>
+            <span class="spacer"></span>
+            <div class="legend">
+              <span class="item"><span class="swatch" style="background:var(--s1)"></span>Entradas</span>
+              <span class="item"><span class="swatch" style="background:var(--s2)"></span>Saídas</span>
+            </div>
+          </div>
+          <div class="card-body"><div id="ch-mov"></div></div>
+        </div>
+
+        <div class="grid g-2">
+          <div class="card">
+            <div class="card-head"><h3>Compras por fornecedor</h3><span class="hint">acumulado</span></div>
+            <div class="card-body"><div id="ch-forn"></div></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3>Agenda de pagamentos</h3><span class="hint">próximas 6 semanas</span></div>
+            <div class="card-body"><div id="ch-agenda"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stack">
+        <div class="card">
+          <div class="card-head"><h3>O que precisa de você</h3><span class="hint">${alertas.length} item(ns)</span></div>
+          <div class="alert-list" id="lista-alertas">
+            ${alertas.length ? alertas.map((a, i) => `
+              <button class="alert ${a.nivel}" type="button" data-ir="${a.ir}">
+                <span class="a-icon" aria-hidden="true">${
+                  a.nivel === "crit"
+                    ? '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="var(--crit)" stroke-width="1.7"><path d="M9 2.5 16.5 15.5h-15z" stroke-linejoin="round"/><path d="M9 7.5v3.2M9 12.9v.6"/></svg>'
+                    : a.nivel === "warn"
+                    ? '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="var(--warn)" stroke-width="1.7"><circle cx="9" cy="9" r="6.8"/><path d="M9 5.4v4.2M9 12v.6"/></svg>'
+                    : '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="var(--accent)" stroke-width="1.7"><circle cx="9" cy="9" r="6.8"/><path d="M9 8v4.4M9 5.6v.6"/></svg>'
+                }</span>
+                <span>
+                  <span class="a-title">${esc(a.titulo)}</span><br>
+                  <span class="a-desc">${esc(a.desc)}</span>
+                </span>
+              </button>`).join("")
+            : '<div class="empty">Nada pendente. Tudo em dia.</div>'}
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3>Fechamento de ${esc(rotuloComp(comp))}</h3></div>
+          <div class="card-body stack" style="gap:12px">
+            <div class="row" style="justify-content:space-between">
+              <span class="t-sub">Notas lançadas</span>
+              <span class="mono t-strong">${notasMes.length}</span>
+            </div>
+            <div class="row" style="justify-content:space-between">
+              <span class="t-sub">Valor das notas</span>
+              <span class="mono t-strong">${money(notasMes.reduce((s, n) => s + n.valor, 0))}</span>
+            </div>
+            <div class="row" style="justify-content:space-between">
+              <span class="t-sub">Arquivos completos</span>
+              <span class="mono t-strong">${notasMes.length - semArquivo.length}/${notasMes.length}</span>
+            </div>
+            <button class="btn primary" type="button" data-ir="contabil" style="justify-content:center">Abrir portal do contador</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  barrasAgrupadas($("#ch-mov"), {
+    categorias: meses.map(m => m.rotulo),
+    series: [
+      { nome: "Entradas", cor: "var(--s1)", valores: entradas },
+      { nome: "Saídas", cor: "var(--s2)", valores: saidas }
+    ],
+    formata: (v, eixo) => eixo ? (v >= 1000 ? Math.round(v / 1000) + "k" : String(Math.round(v))) : money(v)
+  });
+  barrasHorizontais($("#ch-forn"), { itens: topForn, cor: "var(--s1)", formata: money });
+  barrasHorizontais($("#ch-agenda"), { itens: semanas, cor: "var(--s3)", formata: money });
+
+  $$("#view-painel [data-ir]").forEach(b => b.addEventListener("click", () => irPara(b.dataset.ir)));
+}
+
+/* ==================================================================
+   9. ESTOQUE
+   ================================================================== */
+function renderEstoque() {
+  const view = $("#view-estoque");
+  const s = saldosTodos();
+  const termo = filtros.estoqueBusca.trim().toLowerCase();
+  let itens = db.materiais.map(m => ({ ...m, saldo: s[m.id], razao: m.minimo ? s[m.id] / m.minimo : 2 }));
+  if (termo) itens = itens.filter(m => (m.nome + " " + m.codigo + " " + m.local).toLowerCase().includes(termo));
+  if (filtros.estoqueSoCriticos) itens = itens.filter(m => m.razao < 1);
+  itens.sort((a, b) => a.razao - b.razao);
+
+  const criticos = materiaisCriticos();
+
+  view.innerHTML = `
+    <div class="toolbar">
+      <div class="grow"><input type="search" id="f-estoque-busca" placeholder="Buscar por nome, código ou localização" value="${esc(filtros.estoqueBusca)}"></div>
+      <div class="seg">
+        <button type="button" data-crit="false" aria-pressed="${!filtros.estoqueSoCriticos}">Todos (${db.materiais.length})</button>
+        <button type="button" data-crit="true" aria-pressed="${filtros.estoqueSoCriticos}">Abaixo do mínimo (${criticos.length})</button>
+      </div>
+      <span class="spacer"></span>
+      <button class="btn" type="button" id="b-novo-material">Novo material</button>
+      <button class="btn primary" type="button" id="b-mov">Registrar movimento</button>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h3>Posição de estoque</h3>
+        <span class="hint">${itens.length} item(ns) · ${money(valorEmEstoque())} valorizado ao custo</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Material</th><th>Localização</th>
+              <th class="num">Saldo</th><th class="num">Mínimo</th>
+              <th style="width:130px">Nível</th>
+              <th class="num">Custo unit.</th><th class="num">Valor em estoque</th>
+              <th class="tight"></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itens.length ? itens.map(m => {
+              const nivel = m.razao < 0.5 ? "crit" : m.razao < 1 ? "warn" : "good";
+              const pct = Math.max(3, Math.min(100, Math.round(m.razao * 50)));
+              return `<tr class="row-flag ${m.razao < 1 ? nivel : ""}">
+                <td><div class="t-strong">${esc(m.nome)}</div><div class="t-sub mono">${esc(m.codigo)}</div></td>
+                <td class="t-sub">${esc(m.local)}</td>
+                <td class="num mono t-strong">${qty(m.saldo)} <span class="t-sub">${esc(m.unidade)}</span></td>
+                <td class="num mono t-sub">${qty(m.minimo)}</td>
+                <td><div class="meter ${nivel}"><i style="width:${pct}%"></i></div></td>
+                <td class="num mono">${money(m.custo)}</td>
+                <td class="num mono t-strong">${money(Math.max(0, m.saldo) * m.custo)}</td>
+                <td class="tight"><button class="btn sm" type="button" data-mov="${m.id}">Movimentar</button></td>
+              </tr>`;
+            }).join("") : '<tr><td colspan="8"><div class="empty">Nenhum material encontrado.</div></td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+
+  $("#f-estoque-busca").addEventListener("input", e => {
+    filtros.estoqueBusca = e.target.value;
+    const pos = e.target.selectionStart;
+    renderEstoque();
+    const novo = $("#f-estoque-busca");
+    novo.focus(); novo.setSelectionRange(pos, pos);
+  });
+  $$("#view-estoque .seg button").forEach(b => b.addEventListener("click", () => {
+    filtros.estoqueSoCriticos = b.dataset.crit === "true";
+    renderEstoque();
+  }));
+  $("#b-mov").addEventListener("click", () => modalMovimento());
+  $("#b-novo-material").addEventListener("click", () => modalMaterial());
+  $$("#view-estoque [data-mov]").forEach(b => b.addEventListener("click", () => modalMovimento(b.dataset.mov)));
+}
+
+function modalMaterial() {
+  abrirModal({
+    titulo: "Novo material",
+    corpo: `
+      <div class="field-row">
+        <label class="field"><span>Código</span><input name="codigo" placeholder="CH-1020-3" required></label>
+        <label class="field"><span>Unidade</span>
+          <select name="unidade">${["un", "kg", "pç", "L", "m", "par", "cx"].map(u => `<option>${u}</option>`).join("")}</select>
+        </label>
+      </div>
+      <label class="field"><span>Descrição</span><input name="nome" placeholder="Chapa de aço 1020 · 3 mm"></label>
+      <div class="field-row">
+        <label class="field"><span>Estoque mínimo</span><input name="minimo" type="number" min="0" step="1" value="0"></label>
+        <label class="field"><span>Custo unitário (R$)</span><input name="custo" type="number" min="0" step="0.01" value="0"></label>
+      </div>
+      <label class="field"><span>Localização</span><input name="local" placeholder="Almox. · Estante 1"></label>
+      <label class="field"><span>Saldo inicial</span><input name="inicial" type="number" min="0" step="1" value="0"></label>`,
+    acoes: [
+      { rotulo: "Cancelar" },
+      { rotulo: "Cadastrar", primaria: true, aoClicar: () => {
+        const v = valoresDoModal();
+        if (!v.nome.trim()) { toast("Informe a descrição do material."); return; }
+        const id = uid("m");
+        db.materiais.push({
+          id, codigo: v.codigo.trim() || id.toUpperCase(), nome: v.nome.trim(), unidade: v.unidade,
+          minimo: +v.minimo || 0, local: v.local.trim() || "—", custo: +v.custo || 0
+        });
+        if (+v.inicial > 0) db.movimentos.push({
+          id: uid("mv"), data: iso(hoje()), materialId: id, tipo: "entrada",
+          qtd: +v.inicial, doc: "Saldo inicial", responsavel: "Almoxarifado", obs: "Cadastro do material"
+        });
+        fecharModal(); redesenhar(); toast("Material cadastrado.");
+      }}
+    ]
+  });
+}
+
+function modalMovimento(materialId) {
+  const opcoes = db.materiais.map(m => `<option value="${m.id}" ${m.id === materialId ? "selected" : ""}>${esc(m.codigo)} — ${esc(m.nome)}</option>`).join("");
+  abrirModal({
+    titulo: "Registrar movimento",
+    corpo: `
+      <label class="field"><span>Material</span><select name="materialId">${opcoes}</select></label>
+      <div class="field-row">
+        <label class="field"><span>Tipo</span>
+          <select name="tipo"><option value="entrada">Entrada</option><option value="saida">Saída</option></select>
+        </label>
+        <label class="field"><span>Quantidade</span><input name="qtd" type="number" min="0.01" step="0.01" value="1"></label>
+      </div>
+      <div class="field-row">
+        <label class="field"><span>Data</span><input name="data" type="date" value="${iso(hoje())}"></label>
+        <label class="field"><span>Documento / OS</span><input name="doc" placeholder="NF 41870 ou OS-2455"></label>
+      </div>
+      <label class="field"><span>Responsável / setor</span><input name="responsavel" placeholder="Solda"></label>
+      <label class="field"><span>Observação</span><input name="obs" placeholder="opcional"></label>`,
+    acoes: [
+      { rotulo: "Cancelar" },
+      { rotulo: "Lançar", primaria: true, aoClicar: () => {
+        const v = valoresDoModal();
+        const q = +v.qtd;
+        if (!(q > 0)) { toast("Informe uma quantidade maior que zero."); return; }
+        if (v.tipo === "saida" && q > saldo(v.materialId)) {
+          toast("Saída maior que o saldo disponível (" + qty(saldo(v.materialId)) + ").");
+          return;
+        }
+        db.movimentos.push({
+          id: uid("mv"), data: v.data || iso(hoje()), materialId: v.materialId, tipo: v.tipo,
+          qtd: q, doc: v.doc.trim() || "—", responsavel: v.responsavel.trim() || "—", obs: v.obs.trim()
+        });
+        fecharModal(); redesenhar();
+        toast((v.tipo === "entrada" ? "Entrada" : "Saída") + " de " + qty(q) + " " + material(v.materialId).unidade + " lançada.");
+      }}
+    ]
+  });
+}
+
+/* ==================================================================
+   10. MOVIMENTOS
+   ================================================================== */
+function renderMovimentos() {
+  const view = $("#view-movimentos");
+  const termo = filtros.movBusca.trim().toLowerCase();
+  let lista = db.movimentos.slice().sort((a, b) => b.data.localeCompare(a.data) || b.id.localeCompare(a.id));
+  if (filtros.movTipo !== "todos") lista = lista.filter(m => m.tipo === filtros.movTipo);
+  if (termo) lista = lista.filter(m => {
+    const mat = material(m.materialId);
+    return ((mat ? mat.nome + " " + mat.codigo : "") + " " + m.doc + " " + m.responsavel).toLowerCase().includes(termo);
+  });
+  const visiveis = lista.slice(0, 120);
+
+  const totalEnt = lista.filter(m => m.tipo === "entrada").reduce((s, m) => s + m.qtd * (material(m.materialId)?.custo || 0), 0);
+  const totalSai = lista.filter(m => m.tipo === "saida").reduce((s, m) => s + m.qtd * (material(m.materialId)?.custo || 0), 0);
+
+  view.innerHTML = `
+    <div class="toolbar">
+      <div class="grow"><input type="search" id="f-mov-busca" placeholder="Buscar por material, OS ou setor" value="${esc(filtros.movBusca)}"></div>
+      <div class="seg">
+        ${[["todos", "Todos"], ["entrada", "Entradas"], ["saida", "Saídas"]].map(([k, r]) =>
+          `<button type="button" data-tipo="${k}" aria-pressed="${filtros.movTipo === k}">${r}</button>`).join("")}
+      </div>
+      <span class="spacer"></span>
+      <button class="btn primary" type="button" id="b-mov2">Registrar movimento</button>
+    </div>
+
+    <div class="kpis" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+      <div class="kpi is-accent"><span class="k-label">Lançamentos no filtro</span><span class="k-value mono">${lista.length}</span><span class="k-foot">exibindo os ${visiveis.length} mais recentes</span></div>
+      <div class="kpi is-good"><span class="k-label">Entradas (custo)</span><span class="k-value mono">${moneyShort(totalEnt)}</span><span class="k-foot">material recebido</span></div>
+      <div class="kpi is-warn"><span class="k-label">Saídas (custo)</span><span class="k-value mono">${moneyShort(totalSai)}</span><span class="k-foot">consumo em produção</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Livro de movimentação</h3><span class="hint">quem tirou, quanto, para qual ordem</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Data</th><th>Material</th><th>Tipo</th><th class="num">Qtd.</th><th>Documento / OS</th><th>Responsável</th><th class="num">Custo</th></tr></thead>
+          <tbody>
+            ${visiveis.length ? visiveis.map(m => {
+              const mat = material(m.materialId);
+              return `<tr class="row-flag ${m.tipo === "entrada" ? "good" : ""}">
+                <td class="mono t-sub">${fmtData(m.data)}</td>
+                <td><div class="t-strong">${esc(mat ? mat.nome : "—")}</div><div class="t-sub mono">${esc(mat ? mat.codigo : "")}</div></td>
+                <td><span class="chip ${m.tipo === "entrada" ? "accent" : "neutral"}"><span class="dot"></span>${m.tipo === "entrada" ? "Entrada" : "Saída"}</span></td>
+                <td class="num mono t-strong">${m.tipo === "entrada" ? "+" : "−"}${qty(m.qtd)} <span class="t-sub">${esc(mat ? mat.unidade : "")}</span></td>
+                <td class="mono t-sub">${esc(m.doc)}</td>
+                <td class="t-sub">${esc(m.responsavel)}</td>
+                <td class="num mono">${money(m.qtd * (mat ? mat.custo : 0))}</td>
+              </tr>`;
+            }).join("") : '<tr><td colspan="7"><div class="empty">Nenhum movimento no filtro.</div></td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+
+  $("#f-mov-busca").addEventListener("input", e => {
+    filtros.movBusca = e.target.value;
+    const pos = e.target.selectionStart;
+    renderMovimentos();
+    const novo = $("#f-mov-busca"); novo.focus(); novo.setSelectionRange(pos, pos);
+  });
+  $$("#view-movimentos .seg button").forEach(b => b.addEventListener("click", () => { filtros.movTipo = b.dataset.tipo; renderMovimentos(); }));
+  $("#b-mov2").addEventListener("click", () => modalMovimento());
+}
+
+/* ==================================================================
+   11. FORNECEDORES
+   ================================================================== */
+function renderFornecedores() {
+  const view = $("#view-fornecedores");
+  const dados = db.fornecedores.map(f => {
+    const notas = db.notas.filter(n => n.fornecedorId === f.id);
+    const total = notas.reduce((s, n) => s + n.valor, 0);
+    const emAberto = todasParcelas().filter(p => p.fornecedorId === f.id && !p.pago).reduce((s, p) => s + p.valor, 0);
+    const atrasadas = todasParcelas().filter(p => p.fornecedorId === f.id && !p.pago && diasAte(p.vencimento) < 0).length;
+    const ultima = notas.map(n => n.emissao).sort().pop();
+    return { ...f, qtdNotas: notas.length, total, emAberto, atrasadas, ultima };
+  }).sort((a, b) => b.total - a.total);
+
+  view.innerHTML = `
+    <div class="toolbar">
+      <span class="eyebrow">${db.fornecedores.length} fornecedores ativos</span>
+      <span class="spacer"></span>
+      <button class="btn primary" type="button" id="b-novo-forn">Novo fornecedor</button>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Cadastro de fornecedores</h3><span class="hint">com histórico de compra e saldo em aberto</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Fornecedor</th><th>Contato</th><th>Condição</th><th class="num">Notas</th><th class="num">Comprado</th><th class="num">Em aberto</th><th>Última compra</th><th class="tight"></th></tr></thead>
+          <tbody>
+            ${dados.map(f => `<tr class="row-flag ${f.atrasadas ? "crit" : ""}">
+              <td>
+                <div class="t-strong">${esc(f.nome)}</div>
+                <div class="t-sub mono">${esc(f.cnpj)}</div>
+              </td>
+              <td><div>${esc(f.contato)}</div><div class="t-sub mono">${esc(f.telefone)}</div></td>
+              <td><span class="chip neutral">${esc(f.prazo)}</span></td>
+              <td class="num mono">${f.qtdNotas}</td>
+              <td class="num mono t-strong">${money(f.total)}</td>
+              <td class="num mono ${f.atrasadas ? "" : ""}">${money(f.emAberto)}${f.atrasadas ? ' <span class="chip crit" style="margin-left:6px"><span class="dot"></span>' + f.atrasadas + " atrasada(s)</span>" : ""}</td>
+              <td class="mono t-sub">${f.ultima ? fmtData(f.ultima) : "—"}</td>
+              <td class="tight"><button class="btn sm" type="button" data-forn="${f.id}">Ficha</button></td>
+            </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+
+  $("#b-novo-forn").addEventListener("click", modalFornecedor);
+  $$("#view-fornecedores [data-forn]").forEach(b => b.addEventListener("click", () => fichaFornecedor(b.dataset.forn)));
+}
+
+function modalFornecedor() {
+  abrirModal({
+    titulo: "Novo fornecedor",
+    corpo: `
+      <label class="field"><span>Razão social</span><input name="nome" placeholder="Aço Minas Distribuidora"></label>
+      <div class="field-row">
+        <label class="field"><span>CNPJ</span><input name="cnpj" placeholder="00.000.000/0001-00"></label>
+        <label class="field"><span>Categoria</span><input name="categoria" placeholder="Matéria-prima"></label>
+      </div>
+      <div class="field-row">
+        <label class="field"><span>Contato</span><input name="contato" placeholder="Nome do vendedor"></label>
+        <label class="field"><span>Telefone</span><input name="telefone" placeholder="(34) 0000-0000"></label>
+      </div>
+      <label class="field"><span>Condição de pagamento</span><input name="prazo" placeholder="28/56/84 dias"></label>`,
+    acoes: [
+      { rotulo: "Cancelar" },
+      { rotulo: "Cadastrar", primaria: true, aoClicar: () => {
+        const v = valoresDoModal();
+        if (!v.nome.trim()) { toast("Informe a razão social."); return; }
+        db.fornecedores.push({
+          id: uid("f"), nome: v.nome.trim(), cnpj: v.cnpj.trim() || "—", contato: v.contato.trim() || "—",
+          telefone: v.telefone.trim() || "—", categoria: v.categoria.trim() || "—", prazo: v.prazo.trim() || "À vista"
+        });
+        fecharModal(); redesenhar(); toast("Fornecedor cadastrado.");
+      }}
+    ]
+  });
+}
+
+function fichaFornecedor(id) {
+  const f = fornecedor(id);
+  const notas = db.notas.filter(n => n.fornecedorId === id).sort((a, b) => b.emissao.localeCompare(a.emissao));
+  const parcelas = todasParcelas().filter(p => p.fornecedorId === id && !p.pago).sort((a, b) => a.vencimento.localeCompare(b.vencimento));
+  abrirModal({
+    largo: true,
+    titulo: f.nome,
+    corpo: `
+      <div class="grid g-3" style="gap:12px">
+        <div class="kpi is-accent"><span class="k-label">Comprado</span><span class="k-value mono">${moneyShort(notas.reduce((s, n) => s + n.valor, 0))}</span><span class="k-foot">${notas.length} nota(s)</span></div>
+        <div class="kpi is-warn"><span class="k-label">Em aberto</span><span class="k-value mono">${moneyShort(parcelas.reduce((s, p) => s + p.valor, 0))}</span><span class="k-foot">${parcelas.length} parcela(s)</span></div>
+        <div class="kpi"><span class="k-label">Condição</span><span class="k-value" style="font-size:16px">${esc(f.prazo)}</span><span class="k-foot">${esc(f.categoria)}</span></div>
+      </div>
+      <div class="card" style="box-shadow:none">
+        <div class="card-head"><h3>Parcelas em aberto</h3></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Vencimento</th><th>Título</th><th class="num">Valor</th><th>Situação</th></tr></thead>
+          <tbody>${parcelas.length ? parcelas.map(p => {
+            const st = statusParcela(p);
+            return `<tr><td class="mono">${fmtData(p.vencimento)}</td><td class="t-sub">${esc(p.descricao)} · p${p.n}</td>
+              <td class="num mono t-strong">${money(p.valor)}</td><td><span class="chip ${st.classe}"><span class="dot"></span>${st.rotulo}</span></td></tr>`;
+          }).join("") : '<tr><td colspan="4"><div class="empty">Nada em aberto.</div></td></tr>'}</tbody>
+        </table></div>
+      </div>
+      <div class="card" style="box-shadow:none">
+        <div class="card-head"><h3>Últimas notas</h3></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>NF</th><th>Emissão</th><th class="num">Valor</th><th>Arquivos</th></tr></thead>
+          <tbody>${notas.slice(0, 8).map(n => `<tr>
+            <td class="mono t-strong">${esc(n.numero)}</td><td class="mono t-sub">${fmtData(n.emissao)}</td>
+            <td class="num mono">${money(n.valor)}</td>
+            <td>${n.arquivos.map(a => '<span class="chip neutral" style="margin-right:4px">' + esc(a.tipo) + "</span>").join("") || '<span class="chip crit"><span class="dot"></span>sem arquivo</span>'}</td>
+          </tr>`).join("")}</tbody>
+        </table></div>
+      </div>`,
+    acoes: [{ rotulo: "Fechar", primaria: true }]
+  });
+}
+
+/* ==================================================================
+   12. NOTAS FISCAIS
+   ================================================================== */
+function renderNotas() {
+  const view = $("#view-notas");
+  const comps = competenciasDisponiveis();
+  if (!filtros.notaComp || !comps.includes(filtros.notaComp)) filtros.notaComp = comps[0];
+
+  let lista = db.notas.filter(n => competencia(n.emissao) === filtros.notaComp);
+  if (filtros.notaForn !== "todos") lista = lista.filter(n => n.fornecedorId === filtros.notaForn);
+  lista.sort((a, b) => b.emissao.localeCompare(a.emissao));
+
+  const total = lista.reduce((s, n) => s + n.valor, 0);
+  const incompletas = lista.filter(n => !n.arquivos.some(a => a.tipo === "XML") || !n.arquivos.some(a => a.tipo === "DANFE"));
+
+  view.innerHTML = `
+    <div class="toolbar">
+      <label class="field" style="min-width:190px"><span>Competência</span>
+        <select id="f-nota-comp">${comps.map(c => `<option value="${c}" ${c === filtros.notaComp ? "selected" : ""}>${rotuloComp(c)}</option>`).join("")}</select>
+      </label>
+      <label class="field" style="min-width:220px"><span>Fornecedor</span>
+        <select id="f-nota-forn">
+          <option value="todos">Todos</option>
+          ${db.fornecedores.map(f => `<option value="${f.id}" ${f.id === filtros.notaForn ? "selected" : ""}>${esc(f.nome)}</option>`).join("")}
+        </select>
+      </label>
+      <span class="spacer"></span>
+      <button class="btn" type="button" data-ir-nota="contabil">Enviar à contabilidade</button>
+      <button class="btn primary" type="button" id="b-nova-nota">Lançar nota</button>
+    </div>
+
+    <div class="kpis" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+      <div class="kpi is-accent"><span class="k-label">Notas na competência</span><span class="k-value mono">${lista.length}</span><span class="k-foot">${esc(rotuloComp(filtros.notaComp))}</span></div>
+      <div class="kpi is-accent"><span class="k-label">Valor total</span><span class="k-value mono">${moneyShort(total)}</span><span class="k-foot">${money(total)}</span></div>
+      <div class="kpi ${incompletas.length ? "is-crit" : "is-good"}"><span class="k-label">Arquivo incompleto</span><span class="k-value mono">${incompletas.length}</span><span class="k-foot">${incompletas.length ? "falta XML ou DANFE" : "todas com XML e DANFE"}</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Notas de entrada</h3><span class="hint">cada nota gera a entrada no estoque e o título a pagar</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>NF</th><th>Fornecedor</th><th>Emissão</th><th class="num">Valor</th><th>Parcelas</th><th>Arquivos</th><th class="tight"></th></tr></thead>
+          <tbody>
+            ${lista.length ? lista.map(n => {
+              const t = db.titulos.find(t => t.notaId === n.id);
+              const abertas = t ? t.parcelas.filter(p => !p.pago).length : 0;
+              const temXml = n.arquivos.some(a => a.tipo === "XML");
+              const temPdf = n.arquivos.some(a => a.tipo === "DANFE");
+              const falta = !temXml || !temPdf;
+              return `<tr class="row-flag ${falta ? "crit" : ""}">
+                <td class="mono t-strong">${esc(n.numero)}<span class="t-sub">/${esc(n.serie)}</span></td>
+                <td>${esc(fornecedor(n.fornecedorId).nome)}</td>
+                <td class="mono t-sub">${fmtData(n.emissao)}</td>
+                <td class="num mono t-strong">${money(n.valor)}</td>
+                <td>${t ? `<span class="chip ${abertas ? "warn" : "good"}"><span class="dot"></span>${t.parcelas.length}× · ${abertas ? abertas + " em aberto" : "quitada"}</span>` : "—"}</td>
+                <td>
+                  ${["XML", "DANFE"].map(tp => {
+                    const arq = n.arquivos.find(a => a.tipo === tp);
+                    return arq
+                      ? `<button class="file-pill" type="button" data-arq="${esc(arq.nome)}" data-ctx="NF ${esc(n.numero)} · ${esc(tp)} · ${esc(arq.tamanho)}">${tp}</button> `
+                      : `<span class="file-pill missing" title="Arquivo não anexado">${tp} ausente</span> `;
+                  }).join("")}
+                </td>
+                <td class="tight"><button class="btn sm" type="button" data-nota="${n.id}">Abrir</button></td>
+              </tr>`;
+            }).join("") : '<tr><td colspan="7"><div class="empty">Nenhuma nota nesta competência.</div></td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+
+  $("#f-nota-comp").addEventListener("change", e => { filtros.notaComp = e.target.value; renderNotas(); });
+  $("#f-nota-forn").addEventListener("change", e => { filtros.notaForn = e.target.value; renderNotas(); });
+  $("#b-nova-nota").addEventListener("click", modalNota);
+  $$("#view-notas [data-ir-nota]").forEach(b => b.addEventListener("click", () => { filtros.contabilComp = filtros.notaComp; irPara("contabil"); }));
+  $$("#view-notas [data-arq]").forEach(b => b.addEventListener("click", () => verArquivo(b.dataset.arq, b.dataset.ctx)));
+  $$("#view-notas [data-nota]").forEach(b => b.addEventListener("click", () => fichaNota(b.dataset.nota)));
+}
+
+function fichaNota(id) {
+  const n = nota(id);
+  const t = db.titulos.find(t => t.notaId === id);
+  abrirModal({
+    largo: true,
+    titulo: "NF " + n.numero + " · " + fornecedor(n.fornecedorId).nome,
+    corpo: `
+      <div class="row" style="gap:22px">
+        <div><div class="eyebrow">Emissão</div><div class="mono t-strong">${fmtData(n.emissao)}</div></div>
+        <div><div class="eyebrow">Valor</div><div class="mono t-strong">${money(n.valor)}</div></div>
+        <div><div class="eyebrow">Parcelas</div><div class="mono t-strong">${t ? t.parcelas.length + "×" : "—"}</div></div>
+      </div>
+      <div><div class="eyebrow">Chave de acesso</div><div class="mono" style="font-size:11.5px;word-break:break-all;color:var(--ink-2)">${esc(n.chave)}</div></div>
+
+      <div class="card" style="box-shadow:none">
+        <div class="card-head"><h3>Itens</h3></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Material</th><th class="num">Qtd.</th><th class="num">Unitário</th><th class="num">Total</th></tr></thead>
+          <tbody>${(n.itens || []).map(i => {
+            const m = material(i.materialId);
+            return `<tr><td>${esc(m ? m.nome : "—")}</td><td class="num mono">${qty(i.qtd)} ${esc(m ? m.unidade : "")}</td>
+              <td class="num mono">${money(i.unitario)}</td><td class="num mono t-strong">${money(i.qtd * i.unitario)}</td></tr>`;
+          }).join("") || '<tr><td colspan="4"><div class="empty">Nota lançada sem itens.</div></td></tr>'}</tbody>
+        </table></div>
+      </div>
+
+      <div class="card" style="box-shadow:none">
+        <div class="card-head"><h3>Parcelas</h3></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>#</th><th>Vencimento</th><th class="num">Valor</th><th>Situação</th></tr></thead>
+          <tbody>${t ? t.parcelas.map(p => {
+            const st = statusParcela(p);
+            return `<tr><td class="mono">${p.n}</td><td class="mono">${fmtData(p.vencimento)}</td>
+              <td class="num mono t-strong">${money(p.valor)}</td>
+              <td><span class="chip ${st.classe}"><span class="dot"></span>${st.rotulo}</span></td></tr>`;
+          }).join("") : ""}</tbody>
+        </table></div>
+      </div>
+
+      <div>
+        <div class="eyebrow" style="margin-bottom:6px">Arquivos anexados</div>
+        <div class="row">${n.arquivos.map(a => `<button class="file-pill" type="button" data-fa="${esc(a.nome)}" data-fc="${esc(a.tipo + " · " + a.tamanho)}">${esc(a.tipo)} · ${esc(a.nome)}</button>`).join("") || '<span class="t-sub">Nenhum arquivo anexado.</span>'}</div>
+      </div>`,
+    acoes: [{ rotulo: "Fechar", primaria: true }]
+  });
+  $$("#modal-body [data-fa]").forEach(b => b.addEventListener("click", () => verArquivo(b.dataset.fa, b.dataset.fc)));
+}
+
+function modalNota() {
+  abrirModal({
+    titulo: "Lançar nota de entrada",
+    corpo: `
+      <div class="field-row">
+        <label class="field"><span>Número da NF</span><input name="numero" placeholder="41871"></label>
+        <label class="field"><span>Série</span><input name="serie" value="1"></label>
+      </div>
+      <label class="field"><span>Fornecedor</span>
+        <select name="fornecedorId">${db.fornecedores.map(f => `<option value="${f.id}">${esc(f.nome)}</option>`).join("")}</select>
+      </label>
+      <div class="field-row">
+        <label class="field"><span>Emissão</span><input name="emissao" type="date" value="${iso(hoje())}"></label>
+        <label class="field"><span>Valor total (R$)</span><input name="valor" type="number" min="0" step="0.01" placeholder="0,00"></label>
+      </div>
+      <div class="field-row">
+        <label class="field"><span>Material recebido</span>
+          <select name="materialId"><option value="">Não dar entrada agora</option>${db.materiais.map(m => `<option value="${m.id}">${esc(m.codigo)} — ${esc(m.nome)}</option>`).join("")}</select>
+        </label>
+        <label class="field"><span>Quantidade</span><input name="qtd" type="number" min="0" step="0.01" value="0"></label>
+      </div>
+      <div class="field-row">
+        <label class="field"><span>Nº de parcelas</span><input name="parcelas" type="number" min="1" max="12" value="1"></label>
+        <label class="field"><span>1º vencimento</span><input name="venc" type="date" value="${iso(addDias(hoje(), 28))}"></label>
+      </div>
+      <label class="field"><span>Intervalo entre parcelas (dias)</span><input name="intervalo" type="number" min="1" value="28"></label>
+      <label class="field"><span>Anexar XML / DANFE</span><input name="arquivos" type="file" multiple></label>
+      <div class="note">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8h10M8 3v10"/></svg>
+        <span>Ao salvar, o sistema cria de uma vez só: a <strong>entrada no estoque</strong>, o <strong>título a pagar com as parcelas datadas</strong> e o <strong>arquivo na pasta da contabilidade</strong>. Um lançamento, três controles.</span>
+      </div>`,
+    acoes: [
+      { rotulo: "Cancelar" },
+      { rotulo: "Lançar nota", primaria: true, aoClicar: () => {
+        const v = valoresDoModal();
+        const valor = +v.valor;
+        if (!v.numero.trim()) { toast("Informe o número da nota."); return; }
+        if (!(valor > 0)) { toast("Informe o valor total da nota."); return; }
+
+        const input = $('#modal-body input[name="arquivos"]');
+        const anexos = Array.from(input && input.files ? input.files : []).map(f => ({
+          tipo: /\.xml$/i.test(f.name) ? "XML" : /\.pdf$/i.test(f.name) ? "DANFE" : "Anexo",
+          nome: f.name, tamanho: Math.max(1, Math.round(f.size / 1024)) + " KB"
+        }));
+
+        const notaId = uid("nf");
+        const itens = v.materialId && +v.qtd > 0
+          ? [{ materialId: v.materialId, qtd: +v.qtd, unitario: +(valor / +v.qtd).toFixed(2) }] : [];
+
+        db.notas.push({
+          id: notaId, numero: v.numero.trim(), serie: v.serie.trim() || "1",
+          fornecedorId: v.fornecedorId, emissao: v.emissao, valor,
+          chave: "—", itens, arquivos: anexos
+        });
+        if (itens.length) db.movimentos.push({
+          id: uid("mv"), data: v.emissao, materialId: v.materialId, tipo: "entrada",
+          qtd: +v.qtd, doc: "NF " + v.numero.trim(), responsavel: "Almoxarifado", obs: ""
+        });
+
+        const n = Math.max(1, Math.min(12, +v.parcelas || 1));
+        const intervalo = Math.max(1, +v.intervalo || 28);
+        const parcelas = [];
+        for (let p = 0; p < n; p++) parcelas.push({
+          n: p + 1, valor: +(valor / n).toFixed(2),
+          vencimento: iso(addDias(fromISO(v.venc), p * intervalo)),
+          pago: false, pagoEm: null, comprovante: null
+        });
+        db.titulos.push({
+          id: uid("tt"), notaId, fornecedorId: v.fornecedorId,
+          descricao: "NF " + v.numero.trim() + " · " + fornecedor(v.fornecedorId).nome,
+          valor, parcelas
+        });
+
+        filtros.notaComp = competencia(v.emissao);
+        fecharModal(); redesenhar();
+        toast("Nota lançada · " + n + " parcela(s) gerada(s)" + (itens.length ? " · estoque atualizado" : "") + ".");
+      }}
+    ]
+  });
+}
+
+/* ==================================================================
+   13. CONTAS A PAGAR
+   ================================================================== */
+function renderPagar() {
+  const view = $("#view-pagar");
+  let lista = todasParcelas();
+  const vencidas = lista.filter(p => !p.pago && diasAte(p.vencimento) < 0);
+  const semana = lista.filter(p => !p.pago && diasAte(p.vencimento) >= 0 && diasAte(p.vencimento) <= 7);
+  const mes = lista.filter(p => !p.pago && diasAte(p.vencimento) >= 0 && diasAte(p.vencimento) <= 30);
+
+  const conjuntos = {
+    abertos: lista.filter(p => !p.pago),
+    vencidos: vencidas,
+    semana: semana,
+    pagos: lista.filter(p => p.pago)
+  };
+  const visiveis = (conjuntos[filtros.pagarStatus] || conjuntos.abertos)
+    .slice().sort((a, b) => filtros.pagarStatus === "pagos"
+      ? (b.pagoEm || "").localeCompare(a.pagoEm || "")
+      : a.vencimento.localeCompare(b.vencimento));
+
+  view.innerHTML = `
+    <div class="toolbar">
+      <div class="seg">
+        ${[["abertos", "Em aberto (" + conjuntos.abertos.length + ")"],
+           ["vencidos", "Vencidos (" + conjuntos.vencidos.length + ")"],
+           ["semana", "Próximos 7 dias (" + conjuntos.semana.length + ")"],
+           ["pagos", "Pagos (" + conjuntos.pagos.length + ")"]].map(([k, r]) =>
+          `<button type="button" data-st="${k}" aria-pressed="${filtros.pagarStatus === k}">${r}</button>`).join("")}
+      </div>
+      <span class="spacer"></span>
+      <span class="eyebrow">Selecionado: ${money(visiveis.reduce((s, p) => s + p.valor, 0))}</span>
+    </div>
+
+    <div class="kpis" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+      <div class="kpi ${vencidas.length ? "is-crit" : "is-good"}"><span class="k-label">Vencido</span><span class="k-value mono">${moneyShort(vencidas.reduce((s, p) => s + p.valor, 0))}</span><span class="k-foot"><strong>${vencidas.length}</strong> parcela(s)</span></div>
+      <div class="kpi is-warn"><span class="k-label">Próximos 7 dias</span><span class="k-value mono">${moneyShort(semana.reduce((s, p) => s + p.valor, 0))}</span><span class="k-foot"><strong>${semana.length}</strong> parcela(s)</span></div>
+      <div class="kpi is-accent"><span class="k-label">Próximos 30 dias</span><span class="k-value mono">${moneyShort(mes.reduce((s, p) => s + p.valor, 0))}</span><span class="k-foot"><strong>${mes.length}</strong> parcela(s)</span></div>
+      <div class="kpi is-accent"><span class="k-label">Total em aberto</span><span class="k-value mono">${moneyShort(conjuntos.abertos.reduce((s, p) => s + p.valor, 0))}</span><span class="k-foot">${conjuntos.abertos.length} parcela(s)</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Parcelas</h3><span class="hint">produto parcelado mostra cada vencimento separado</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Vencimento</th><th>Título</th><th>Parcela</th><th class="num">Valor</th><th>Situação</th><th>Comprovante</th><th class="tight"></th></tr></thead>
+          <tbody>
+            ${visiveis.length ? visiveis.map(p => {
+              const st = statusParcela(p);
+              const flag = st.classe === "crit" ? "crit" : st.classe === "warn" ? "warn" : st.chave === "pago" ? "good" : "";
+              const t = db.titulos.find(t => t.id === p.tituloId);
+              return `<tr class="row-flag ${flag}">
+                <td class="mono t-strong">${fmtData(p.vencimento)}</td>
+                <td><div>${esc(p.descricao)}</div><div class="t-sub">${esc(fornecedor(p.fornecedorId).prazo)}</div></td>
+                <td class="mono">${p.n}<span class="t-sub">/${t ? t.parcelas.length : 1}</span></td>
+                <td class="num mono t-strong">${money(p.valor)}</td>
+                <td><span class="chip ${st.classe}"><span class="dot"></span>${st.rotulo}</span></td>
+                <td>${p.comprovante
+                  ? `<button class="file-pill" type="button" data-cp="${esc(p.comprovante.nome)}" data-cc="Comprovante · ${esc(p.comprovante.tamanho)}">recibo</button>`
+                  : '<span class="t-sub">—</span>'}</td>
+                <td class="tight">${p.pago
+                  ? `<button class="btn sm" type="button" data-desfazer="${p.tituloId}|${p.n}">Reabrir</button>`
+                  : `<button class="btn sm primary" type="button" data-pagar="${p.tituloId}|${p.n}">Dar baixa</button>`}</td>
+              </tr>`;
+            }).join("") : '<tr><td colspan="7"><div class="empty">Nenhuma parcela nesta situação.</div></td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+
+  $$("#view-pagar .seg button").forEach(b => b.addEventListener("click", () => { filtros.pagarStatus = b.dataset.st; renderPagar(); }));
+  $$("#view-pagar [data-cp]").forEach(b => b.addEventListener("click", () => verArquivo(b.dataset.cp, b.dataset.cc)));
+  $$("#view-pagar [data-pagar]").forEach(b => b.addEventListener("click", () => modalBaixa(b.dataset.pagar)));
+  $$("#view-pagar [data-desfazer]").forEach(b => b.addEventListener("click", () => {
+    const [tid, n] = b.dataset.desfazer.split("|");
+    const p = db.titulos.find(t => t.id === tid).parcelas.find(p => p.n === +n);
+    p.pago = false; p.pagoEm = null; p.comprovante = null;
+    redesenhar(); toast("Parcela reaberta.");
+  }));
+}
+
+function modalBaixa(ref) {
+  const [tid, n] = ref.split("|");
+  const t = db.titulos.find(t => t.id === tid);
+  const p = t.parcelas.find(p => p.n === +n);
+  abrirModal({
+    titulo: "Dar baixa na parcela",
+    corpo: `
+      <div class="row" style="gap:22px">
+        <div><div class="eyebrow">Título</div><div class="t-strong">${esc(t.descricao)}</div></div>
+      </div>
+      <div class="row" style="gap:22px">
+        <div><div class="eyebrow">Parcela</div><div class="mono t-strong">${p.n}/${t.parcelas.length}</div></div>
+        <div><div class="eyebrow">Vencimento</div><div class="mono t-strong">${fmtData(p.vencimento)}</div></div>
+        <div><div class="eyebrow">Valor</div><div class="mono t-strong">${money(p.valor)}</div></div>
+      </div>
+      <label class="field"><span>Data do pagamento</span><input name="pagoEm" type="date" value="${iso(hoje())}"></label>
+      <label class="field"><span>Comprovante (opcional)</span><input name="comprovante" type="file"></label>`,
+    acoes: [
+      { rotulo: "Cancelar" },
+      { rotulo: "Confirmar baixa", primaria: true, aoClicar: () => {
+        const v = valoresDoModal();
+        const input = $('#modal-body input[name="comprovante"]');
+        const arq = input && input.files && input.files[0];
+        p.pago = true;
+        p.pagoEm = v.pagoEm || iso(hoje());
+        p.comprovante = arq
+          ? { nome: arq.name, tamanho: Math.max(1, Math.round(arq.size / 1024)) + " KB" }
+          : { nome: "baixa-manual-" + t.id + "-" + p.n + ".pdf", tamanho: "—" };
+        fecharModal(); redesenhar(); toast("Baixa registrada · " + money(p.valor));
+      }}
+    ]
+  });
+}
+
+/* ==================================================================
+   14. PORTAL DO CONTADOR
+   ================================================================== */
+function renderContabil() {
+  const view = $("#view-contabil");
+  const comps = competenciasDisponiveis();
+  if (!filtros.contabilComp || !comps.includes(filtros.contabilComp)) filtros.contabilComp = comps[0];
+  const comp = filtros.contabilComp;
+
+  const notas = db.notas.filter(n => competencia(n.emissao) === comp).sort((a, b) => a.emissao.localeCompare(b.emissao));
+  const pagamentos = todasParcelas().filter(p => p.pago && p.pagoEm && competencia(p.pagoEm) === comp)
+    .sort((a, b) => a.pagoEm.localeCompare(b.pagoEm));
+  const conf = conformidadeEquipe(comp);
+  const incompletas = notas.filter(n => !n.arquivos.some(a => a.tipo === "XML") || !n.arquivos.some(a => a.tipo === "DANFE"));
+  const arquivosNotas = notas.reduce((s, n) => s + n.arquivos.length, 0);
+  const arquivosFolha = db.colaboradores.reduce((s, c) => s + c.docs.filter(d => d.competencia === comp).length, 0);
+
+  view.innerHTML = `
+    <div class="toolbar">
+      <label class="field" style="min-width:200px"><span>Competência</span>
+        <select id="f-cont-comp">${comps.map(c => `<option value="${c}" ${c === comp ? "selected" : ""}>${rotuloComp(c)}</option>`).join("")}</select>
+      </label>
+      <span class="spacer"></span>
+      <button class="btn" type="button" id="b-copiar-relacao">Copiar relação</button>
+      <button class="btn primary" type="button" id="b-pacote">Gerar pacote do mês</button>
+    </div>
+
+    <div class="note">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 2v8m0 0 3-3M8 10 5 7"/><path d="M2.5 11v2.5h11V11"/></svg>
+      <span>Esta é a tela que o seu contador acessa com login próprio — <strong>somente leitura</strong>. Ele entra, escolhe a competência e baixa tudo: XML, DANFE, comprovantes de pagamento e a folha do mês. Ninguém precisa mandar arquivo por WhatsApp.</span>
+    </div>
+
+    <div class="kpis" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+      <div class="kpi is-accent"><span class="k-label">Notas de entrada</span><span class="k-value mono">${notas.length}</span><span class="k-foot">${money(notas.reduce((s, n) => s + n.valor, 0))}</span></div>
+      <div class="kpi is-accent"><span class="k-label">Pagamentos no mês</span><span class="k-value mono">${pagamentos.length}</span><span class="k-foot">${money(pagamentos.reduce((s, p) => s + p.valor, 0))}</span></div>
+      <div class="kpi ${incompletas.length ? "is-crit" : "is-good"}"><span class="k-label">Arquivos fiscais</span><span class="k-value mono">${arquivosNotas}</span><span class="k-foot">${incompletas.length ? incompletas.length + " nota(s) incompleta(s)" : "todas completas"}</span></div>
+      <div class="kpi ${conf.pct === 100 ? "is-good" : "is-warn"}"><span class="k-label">Folha do mês</span><span class="k-value mono">${arquivosFolha}</span><span class="k-foot">documentos · ${conf.pct}% da pasta</span></div>
+    </div>
+
+    <div class="grid g-main">
+      <div class="card">
+        <div class="card-head"><h3>Relação de notas · ${esc(rotuloComp(comp))}</h3><span class="hint">o que a contabilidade precisa para escriturar</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Emissão</th><th>NF</th><th>Fornecedor</th><th>CNPJ</th><th class="num">Valor</th><th>Arquivos</th></tr></thead>
+            <tbody>
+              ${notas.length ? notas.map(n => {
+                const f = fornecedor(n.fornecedorId);
+                const falta = ["XML", "DANFE"].filter(t => !n.arquivos.some(a => a.tipo === t));
+                return `<tr class="row-flag ${falta.length ? "crit" : ""}">
+                  <td class="mono t-sub">${fmtData(n.emissao)}</td>
+                  <td class="mono t-strong">${esc(n.numero)}</td>
+                  <td>${esc(f.nome)}</td>
+                  <td class="mono t-sub nowrap">${esc(f.cnpj)}</td>
+                  <td class="num mono t-strong">${money(n.valor)}</td>
+                  <td>${n.arquivos.map(a => `<button class="file-pill" type="button" data-fa="${esc(a.nome)}" data-fc="NF ${esc(n.numero)} · ${esc(a.tipo)} · ${esc(a.tamanho)}">${esc(a.tipo)}</button> `).join("")}
+                      ${falta.map(t => `<span class="file-pill missing">${t} ausente</span> `).join("")}</td>
+                </tr>`;
+              }).join("") : '<tr><td colspan="6"><div class="empty">Sem notas nesta competência.</div></td></tr>'}
+            </tbody>
+            ${notas.length ? `<tfoot><tr><td colspan="4" class="t-strong" style="padding:10px 14px;border-top:1px solid var(--line)">Total</td>
+              <td class="num mono t-strong" style="border-top:1px solid var(--line)">${money(notas.reduce((s, n) => s + n.valor, 0))}</td><td style="border-top:1px solid var(--line)"></td></tr></tfoot>` : ""}
+          </table>
+        </div>
+      </div>
+
+      <div class="stack">
+        <div class="card">
+          <div class="card-head"><h3>Pagamentos com comprovante</h3></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Pago em</th><th>Título</th><th class="num">Valor</th><th></th></tr></thead>
+              <tbody>
+                ${pagamentos.length ? pagamentos.slice(0, 14).map(p => `<tr>
+                  <td class="mono t-sub">${fmtDataCurta(p.pagoEm)}</td>
+                  <td class="t-sub" style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.descricao)}</td>
+                  <td class="num mono">${money(p.valor)}</td>
+                  <td class="tight">${p.comprovante ? `<button class="file-pill" type="button" data-fa="${esc(p.comprovante.nome)}" data-fc="Comprovante de pagamento">ver</button>` : "—"}</td>
+                </tr>`).join("") : '<tr><td colspan="4"><div class="empty">Sem pagamentos nesta competência.</div></td></tr>'}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3>Pendências do fechamento</h3></div>
+          <div class="alert-list">
+            ${incompletas.map(n => `<div class="alert crit" style="cursor:default">
+              <span class="a-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="var(--crit)" stroke-width="1.7"><path d="M9 2.5 16.5 15.5h-15z" stroke-linejoin="round"/><path d="M9 7.5v3.2M9 12.9v.6"/></svg></span>
+              <span><span class="a-title">NF ${esc(n.numero)} — arquivo faltando</span><br>
+              <span class="a-desc">${["XML", "DANFE"].filter(t => !n.arquivos.some(a => a.tipo === t)).join(" e ")} não anexado</span></span>
+            </div>`).join("")}
+            ${conf.pendentes ? `<div class="alert warn" style="cursor:default">
+              <span class="a-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="var(--warn)" stroke-width="1.7"><circle cx="9" cy="9" r="6.8"/><path d="M9 5.4v4.2M9 12v.6"/></svg></span>
+              <span><span class="a-title">${conf.pendentes} documento(s) de pessoal faltando</span><br>
+              <span class="a-desc">A folha da competência ainda não está completa</span></span>
+            </div>` : ""}
+            ${!incompletas.length && !conf.pendentes ? '<div class="empty">Competência fechada. Nada pendente.</div>' : ""}
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  $("#f-cont-comp").addEventListener("change", e => { filtros.contabilComp = e.target.value; renderContabil(); });
+  $$("#view-contabil [data-fa]").forEach(b => b.addEventListener("click", () => verArquivo(b.dataset.fa, b.dataset.fc)));
+  $("#b-copiar-relacao").addEventListener("click", () => copiarRelacao(comp, notas));
+  $("#b-pacote").addEventListener("click", () => modalPacote(comp, notas, pagamentos));
+}
+
+function copiarRelacao(comp, notas) {
+  const linhas = [["Emissao", "NF", "Serie", "Fornecedor", "CNPJ", "Valor", "XML", "DANFE"].join(";")];
+  notas.forEach(n => {
+    const f = fornecedor(n.fornecedorId);
+    linhas.push([
+      fmtData(n.emissao), n.numero, n.serie, f.nome, f.cnpj,
+      String(n.valor.toFixed(2)).replace(".", ","),
+      n.arquivos.some(a => a.tipo === "XML") ? "sim" : "NAO",
+      n.arquivos.some(a => a.tipo === "DANFE") ? "sim" : "NAO"
+    ].join(";"));
+  });
+  const texto = linhas.join("\n");
+  const finalizar = ok => toast(ok ? "Relação copiada — cole no Excel ou no e-mail do contador." : "Não foi possível copiar aqui; use o botão Gerar pacote.");
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(texto).then(() => finalizar(true), () => finalizar(false));
+  } else finalizar(false);
+}
+
+function modalPacote(comp, notas, pagamentos) {
+  const arquivos = [];
+  notas.forEach(n => n.arquivos.forEach(a => arquivos.push({ pasta: "01-notas-fiscais", nome: a.nome, tamanho: a.tamanho })));
+  pagamentos.forEach(p => { if (p.comprovante) arquivos.push({ pasta: "02-comprovantes", nome: p.comprovante.nome, tamanho: p.comprovante.tamanho }); });
+  db.colaboradores.forEach(c => c.docs.filter(d => d.competencia === comp)
+    .forEach(d => arquivos.push({ pasta: "03-folha", nome: d.nome, tamanho: d.tamanho })));
+
+  const porPasta = {};
+  arquivos.forEach(a => { (porPasta[a.pasta] = porPasta[a.pasta] || []).push(a); });
+
+  abrirModal({
+    largo: true,
+    titulo: "Pacote da contabilidade · " + rotuloComp(comp),
+    corpo: `
+      <div class="row" style="gap:22px">
+        <div><div class="eyebrow">Arquivos</div><div class="mono t-strong" style="font-size:18px">${arquivos.length}</div></div>
+        <div><div class="eyebrow">Notas</div><div class="mono t-strong" style="font-size:18px">${notas.length}</div></div>
+        <div><div class="eyebrow">Valor escriturável</div><div class="mono t-strong" style="font-size:18px">${money(notas.reduce((s, n) => s + n.valor, 0))}</div></div>
+      </div>
+      ${Object.keys(porPasta).sort().map(pasta => `
+        <div>
+          <div class="eyebrow" style="margin-bottom:7px">${esc(pasta)} · ${porPasta[pasta].length} arquivo(s)</div>
+          <div class="row" style="gap:6px">${porPasta[pasta].slice(0, 24).map(a => `<span class="file-pill">${esc(a.nome)}</span>`).join("")}
+          ${porPasta[pasta].length > 24 ? `<span class="t-sub">+${porPasta[pasta].length - 24} arquivo(s)</span>` : ""}</div>
+        </div>`).join("") || '<div class="empty">Sem arquivos nesta competência.</div>'}
+      <div class="note">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><path d="M8 7.2v4M8 4.8v.6"/></svg>
+        <span>No sistema entregue, este botão gera <strong>${esc("fechamento-" + comp + ".zip")}</strong> com essa estrutura de pastas e envia o link direto para o e-mail do contador. Nesta demonstração o pacote é apenas listado.</span>
+      </div>`,
+    acoes: [{ rotulo: "Fechar", primaria: true }]
+  });
+}
+
+/* ==================================================================
+   15. EQUIPE E DOCUMENTOS
+   ================================================================== */
+function renderEquipe() {
+  const view = $("#view-equipe");
+  const comps = competenciasDisponiveis();
+  if (!filtros.equipeComp || !comps.includes(filtros.equipeComp)) filtros.equipeComp = comps[0];
+  const comp = filtros.equipeComp;
+  const conf = conformidadeEquipe(comp);
+
+  let pessoas = db.colaboradores.map(c => {
+    const pend = pendenciasColaborador(c, comp);
+    const total = DOCS_PERMANENTES.length + DOCS_MENSAIS.length;
+    return { ...c, pend, pct: Math.round(((total - pend.length) / total) * 100) };
+  });
+  if (filtros.equipeSoPendentes) pessoas = pessoas.filter(p => p.pend.length);
+  pessoas.sort((a, b) => a.pct - b.pct || a.nome.localeCompare(b.nome));
+
+  view.innerHTML = `
+    <div class="toolbar">
+      <label class="field" style="min-width:200px"><span>Competência</span>
+        <select id="f-eq-comp">${comps.map(c => `<option value="${c}" ${c === comp ? "selected" : ""}>${rotuloComp(c)}</option>`).join("")}</select>
+      </label>
+      <div class="seg" style="align-self:flex-end">
+        <button type="button" data-pend="false" aria-pressed="${!filtros.equipeSoPendentes}">Todos (${db.colaboradores.length})</button>
+        <button type="button" data-pend="true" aria-pressed="${filtros.equipeSoPendentes}">Com pendência (${db.colaboradores.filter(c => pendenciasColaborador(c, comp).length).length})</button>
+      </div>
+      <span class="spacer"></span>
+      <button class="btn primary" type="button" id="b-fiscalizacao">Modo fiscalização</button>
+    </div>
+
+    <div class="kpis" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+      <div class="kpi ${conf.pct === 100 ? "is-good" : "is-warn"}"><span class="k-label">Pasta completa</span><span class="k-value mono">${conf.pct}%</span><span class="k-foot">${conf.ok} de ${conf.total} documentos</span></div>
+      <div class="kpi ${conf.pendentes ? "is-crit" : "is-good"}"><span class="k-label">Pendências</span><span class="k-value mono">${conf.pendentes}</span><span class="k-foot">${esc(rotuloComp(comp))}</span></div>
+      <div class="kpi is-accent"><span class="k-label">Colaboradores</span><span class="k-value mono">${db.colaboradores.length}</span><span class="k-foot">${Array.from(new Set(db.colaboradores.map(c => c.setor))).length} setores</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h3>Pasta do colaborador</h3>
+        <span class="hint">contrato, identidade, ASO, ficha de EPI, holerite, cartão de ponto e comprovante de pagamento</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Colaborador</th><th>Cargo</th><th>Setor</th><th>Admissão</th><th style="width:150px">Pasta</th><th>Pendências</th><th class="tight"></th></tr></thead>
+          <tbody>
+            ${pessoas.length ? pessoas.map(p => {
+              const nivel = p.pct === 100 ? "good" : p.pct >= 80 ? "warn" : "crit";
+              return `<tr class="row-flag ${p.pct === 100 ? "" : nivel}">
+                <td><div class="t-strong">${esc(p.nome)}</div><div class="t-sub mono">mat. ${esc(p.matricula)} · ${esc(p.cpf)}</div></td>
+                <td class="t-sub">${esc(p.cargo)}</td>
+                <td><span class="chip neutral">${esc(p.setor)}</span></td>
+                <td class="mono t-sub">${fmtData(p.admissao)}</td>
+                <td>
+                  <div class="row" style="gap:8px;flex-wrap:nowrap">
+                    <div class="meter ${nivel}" style="flex:1"><i style="width:${p.pct}%"></i></div>
+                    <span class="mono t-sub">${p.pct}%</span>
+                  </div>
+                </td>
+                <td>${p.pend.length
+                  ? p.pend.slice(0, 2).map(d => `<span class="file-pill missing">${esc(d.tipo)}</span> `).join("") + (p.pend.length > 2 ? `<span class="t-sub">+${p.pend.length - 2}</span>` : "")
+                  : '<span class="chip good"><span class="dot"></span>completa</span>'}</td>
+                <td class="tight"><button class="btn sm" type="button" data-col="${p.id}">Abrir pasta</button></td>
+              </tr>`;
+            }).join("") : '<tr><td colspan="7"><div class="empty">Nenhum colaborador no filtro.</div></td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+
+  $("#f-eq-comp").addEventListener("change", e => { filtros.equipeComp = e.target.value; renderEquipe(); });
+  $$("#view-equipe .seg button").forEach(b => b.addEventListener("click", () => { filtros.equipeSoPendentes = b.dataset.pend === "true"; renderEquipe(); }));
+  $$("#view-equipe [data-col]").forEach(b => b.addEventListener("click", () => pastaColaborador(b.dataset.col, comp)));
+  $("#b-fiscalizacao").addEventListener("click", () => modalFiscalizacao(comp));
+}
+
+function pastaColaborador(id, comp) {
+  const c = db.colaboradores.find(c => c.id === id);
+  const pend = pendenciasColaborador(c, comp);
+  const permanentes = DOCS_PERMANENTES.map(t => ({ tipo: t, doc: c.docs.find(d => d.tipo === t && !d.competencia) }));
+  const mensais = DOCS_MENSAIS.map(t => ({ tipo: t, doc: c.docs.find(d => d.tipo === t && d.competencia === comp) }));
+
+  const bloco = (titulo, itens) => `
+    <div>
+      <div class="eyebrow" style="margin-bottom:8px">${titulo}</div>
+      <div class="doc-grid">
+        ${itens.map(i => i.doc
+          ? `<div class="doc-cell">
+              <span class="d-name">${esc(i.tipo)}</span>
+              <span class="d-meta mono">${esc(i.doc.nome)}</span>
+              <span class="d-meta">${esc(i.doc.tamanho)} · enviado ${fmtData(i.doc.enviadoEm)}</span>
+              <button class="btn sm" type="button" data-dv="${esc(i.doc.nome)}" data-dc="${esc(c.nome + " · " + i.tipo)}">Abrir</button>
+            </div>`
+          : `<div class="doc-cell missing">
+              <span class="d-name">${esc(i.tipo)}</span>
+              <span class="d-meta" style="color:var(--crit)">Documento não enviado</span>
+              <button class="btn sm" type="button" data-up="${c.id}|${esc(i.tipo)}|${i.doc === undefined && DOCS_MENSAIS.includes(i.tipo) ? comp : ""}">Anexar</button>
+            </div>`).join("")}
+      </div>
+    </div>`;
+
+  abrirModal({
+    largo: true,
+    titulo: c.nome,
+    corpo: `
+      <div class="row" style="gap:22px">
+        <div><div class="eyebrow">Matrícula</div><div class="mono t-strong">${esc(c.matricula)}</div></div>
+        <div><div class="eyebrow">Cargo</div><div class="t-strong">${esc(c.cargo)}</div></div>
+        <div><div class="eyebrow">Setor</div><div class="t-strong">${esc(c.setor)}</div></div>
+        <div><div class="eyebrow">Admissão</div><div class="mono t-strong">${fmtData(c.admissao)}</div></div>
+        <div><div class="eyebrow">Situação</div>${pend.length
+          ? `<span class="chip crit"><span class="dot"></span>${pend.length} pendência(s)</span>`
+          : '<span class="chip good"><span class="dot"></span>pasta completa</span>'}</div>
+      </div>
+      ${bloco("Documentos permanentes", permanentes)}
+      ${bloco("Competência · " + rotuloComp(comp), mensais)}`,
+    acoes: [{ rotulo: "Fechar", primaria: true }]
+  });
+
+  $$("#modal-body [data-dv]").forEach(b => b.addEventListener("click", () => verArquivo(b.dataset.dv, b.dataset.dc)));
+  $$("#modal-body [data-up]").forEach(b => b.addEventListener("click", () => {
+    const [cid, tipo, cp] = b.dataset.up.split("|");
+    modalAnexarDoc(cid, tipo, cp || null, comp);
+  }));
+}
+
+function modalAnexarDoc(cid, tipo, cp, compVoltar) {
+  const c = db.colaboradores.find(c => c.id === cid);
+  abrirModal({
+    titulo: "Anexar · " + tipo,
+    corpo: `
+      <div class="row" style="gap:22px">
+        <div><div class="eyebrow">Colaborador</div><div class="t-strong">${esc(c.nome)}</div></div>
+        <div><div class="eyebrow">Documento</div><div class="t-strong">${esc(tipo)}</div></div>
+        ${cp ? `<div><div class="eyebrow">Competência</div><div class="mono t-strong">${esc(rotuloComp(cp))}</div></div>` : ""}
+      </div>
+      <label class="field"><span>Arquivo</span><input name="arquivo" type="file"></label>`,
+    acoes: [
+      { rotulo: "Cancelar", aoClicar: () => { fecharModal(); pastaColaborador(cid, compVoltar); } },
+      { rotulo: "Anexar", primaria: true, aoClicar: () => {
+        const input = $('#modal-body input[name="arquivo"]');
+        const f = input && input.files && input.files[0];
+        c.docs.push({
+          tipo, competencia: cp,
+          nome: f ? f.name : tipo.toLowerCase().replace(/[^a-z0-9]+/g, "-") + (cp ? "-" + cp : "") + ".pdf",
+          tamanho: f ? Math.max(1, Math.round(f.size / 1024)) + " KB" : "—",
+          enviadoEm: iso(hoje())
+        });
+        salvar(); atualizarBadges();
+        fecharModal(); pastaColaborador(cid, compVoltar);
+        toast(tipo + " anexado à pasta de " + c.nome.split(" ")[0] + ".");
+      }}
+    ]
+  });
+}
+
+function modalFiscalizacao(comp) {
+  const linhas = db.colaboradores.map(c => ({ c, pend: pendenciasColaborador(c, comp) }));
+  const totalPend = linhas.reduce((s, l) => s + l.pend.length, 0);
+  abrirModal({
+    largo: true,
+    titulo: "Modo fiscalização · " + rotuloComp(comp),
+    corpo: `
+      <div class="note">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 1.8 13.5 4v4.2c0 3-2.3 5-5.5 6-3.2-1-5.5-3-5.5-6V4z"/><path d="M5.8 8.1 7.3 9.6l3-3.2"/></svg>
+        <span>Tela única para apresentar numa visita do Ministério do Trabalho: todo colaborador, o que está na pasta e o que falta. ${totalPend ? "<strong>Resolva as " + totalPend + " pendências abaixo antes.</strong>" : "<strong>Todas as pastas estão completas.</strong>"}</span>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Colaborador</th><th>Admissão</th>${DOCS_PERMANENTES.concat(DOCS_MENSAIS).map(t => `<th style="text-align:center">${esc(t.replace("Documento de identidade", "Identidade").replace("Comprovante de pagamento", "Comprovante"))}</th>`).join("")}</tr></thead>
+        <tbody>
+          ${linhas.map(({ c, pend }) => `<tr class="row-flag ${pend.length ? "crit" : "good"}">
+            <td><div class="t-strong">${esc(c.nome)}</div><div class="t-sub">${esc(c.cargo)}</div></td>
+            <td class="mono t-sub">${fmtData(c.admissao)}</td>
+            ${DOCS_PERMANENTES.concat(DOCS_MENSAIS).map(t => {
+              const ok = !pend.some(p => p.tipo === t);
+              return `<td style="text-align:center">${ok
+                ? '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="var(--good)" stroke-width="2" aria-label="presente"><path d="M3 8.4 6.3 11.7 13 5"/></svg>'
+                : '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="var(--crit)" stroke-width="2" aria-label="faltando"><path d="M4 4l8 8M12 4l-8 8"/></svg>'}</td>`;
+            }).join("")}
+          </tr>`).join("")}
+        </tbody>
+      </table></div>`,
+    acoes: [{ rotulo: "Fechar", primaria: true }]
+  });
+}
+
+/* ==================================================================
+   16. INICIALIZAÇÃO
+   ================================================================== */
+function aplicarTema(t) {
+  if (t) document.documentElement.setAttribute("data-theme", t);
+  else document.documentElement.removeAttribute("data-theme");
+  try { t ? localStorage.setItem("bancada.tema", t) : localStorage.removeItem("bancada.tema"); } catch (e) {}
+}
+$("#btn-theme").addEventListener("click", () => {
+  const atual = document.documentElement.getAttribute("data-theme");
+  const escuroSistema = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const proximo = atual ? (atual === "dark" ? "light" : null) : (escuroSistema ? "light" : "dark");
+  aplicarTema(proximo);
+  VIEWS[viewAtual].render();
+});
+$("#btn-reset").addEventListener("click", () => {
+  abrirModal({
+    titulo: "Recarregar dados de demonstração",
+    corpo: '<p style="color:var(--ink-2)">Isso apaga tudo que você lançou nesta sessão e volta a base de exemplo ao estado original. A demonstração roda inteira no seu navegador — nada é enviado a servidor nenhum.</p>',
+    acoes: [
+      { rotulo: "Cancelar" },
+      { rotulo: "Recarregar", primaria: true, aoClicar: () => {
+        db = semear(); salvar(); fecharModal(); redesenhar(); toast("Base de demonstração recarregada.");
+      }}
+    ]
+  });
+});
+
+try {
+  const t = localStorage.getItem("bancada.tema");
+  if (t) document.documentElement.setAttribute("data-theme", t);
+} catch (e) {}
+
+db = carregar();
+$("#today").textContent = fmtData(iso(hoje()));
+atualizarBadges();
+irPara(location.hash.slice(1) || "painel");
+window.addEventListener("hashchange", () => {
+  const v = location.hash.slice(1);
+  if (VIEWS[v] && v !== viewAtual) irPara(v);
+});
+
+// Redesenha os gráficos quando a largura muda (o viewBox depende do container)
+let redimTimer;
+window.addEventListener("resize", () => {
+  clearTimeout(redimTimer);
+  redimTimer = setTimeout(() => { if (viewAtual === "painel") renderPainel(); }, 200);
+});
+</script>
