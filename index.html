@@ -396,7 +396,7 @@ td.tight{width:1%;white-space:nowrap}
 
 /* ============================== RESPONSIVE ============================== */
 @media (max-width:1120px){
-  .kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .kpis{grid-template-columns:repeat(3,minmax(0,1fr)) !important}
   .g-main{grid-template-columns:minmax(0,1fr)}
   .g-3{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
@@ -415,7 +415,7 @@ td.tight{width:1%;white-space:nowrap}
   }
   .rail-scrim.open{opacity:1;pointer-events:auto}
   .co-name{display:none}
-  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr)) !important}
   .g-2,.g-3{grid-template-columns:minmax(0,1fr)}
   .view{padding:16px 14px 48px}
   .topbar{padding:10px 14px}
@@ -454,10 +454,12 @@ td.tight{width:1%;white-space:nowrap}
       <button class="nav-item" data-view="painel"><span>Painel</span></button>
       <button class="nav-item" data-view="estoque"><span>Estoque</span><span class="badge" id="badge-estoque" hidden>0</span></button>
       <button class="nav-item" data-view="movimentos"><span>Entradas e saídas</span></button>
+      <button class="nav-item" data-view="os"><span>Ordens de serviço</span></button>
       <button class="nav-item" data-view="fornecedores"><span>Fornecedores</span></button>
 
       <div class="nav-group">Financeiro</div>
       <button class="nav-item" data-view="notas"><span>Notas fiscais</span></button>
+      <button class="nav-item" data-view="receber"><span>Contas a receber</span><span class="badge" id="badge-receber" hidden>0</span></button>
       <button class="nav-item" data-view="pagar"><span>Contas a pagar</span><span class="badge" id="badge-pagar" hidden>0</span></button>
       <button class="nav-item" data-view="contabil"><span>Portal do contador</span></button>
 
@@ -494,8 +496,10 @@ td.tight{width:1%;white-space:nowrap}
     <section class="view active" id="view-painel"></section>
     <section class="view" id="view-estoque"></section>
     <section class="view" id="view-movimentos"></section>
+    <section class="view" id="view-os"></section>
     <section class="view" id="view-fornecedores"></section>
     <section class="view" id="view-notas"></section>
+    <section class="view" id="view-receber"></section>
     <section class="view" id="view-pagar"></section>
     <section class="view" id="view-contabil"></section>
     <section class="view" id="view-equipe"></section>
@@ -563,7 +567,7 @@ function pick(arr, i) { return arr[i % arr.length]; }
 /* ==================================================================
    2. DADOS DE DEMONSTRAÇÃO
    ================================================================== */
-const CHAVE_ARMAZENAMENTO = "bancada.demo.v1";
+const CHAVE_ARMAZENAMENTO = "bancada.demo.v2";
 
 function semear() {
   const h = hoje();
@@ -673,6 +677,73 @@ function semear() {
     }
   }
 
+  /* ---- Clientes e vendas dos últimos 5 meses ---- */
+  const clientes = [
+    { id: "cl1", nome: "Metalúrgica Rio Verde Ltda.",   cnpj: "14.220.887/0001-56", contato: "Fábio Nogueira",   telefone: "(34) 3221-4470", segmento: "Estruturas metálicas", prazo: "30 dias" },
+    { id: "cl2", nome: "Auto Peças Central",             cnpj: "09.334.112/0001-08", contato: "Renata Cardoso",   telefone: "(34) 3245-9910", segmento: "Autopeças",            prazo: "30/60 dias" },
+    { id: "cl3", nome: "Construtora Horizonte",          cnpj: "27.661.005/0001-92", contato: "Bruno Salgado",    telefone: "(34) 99812-3345", segmento: "Construção civil",     prazo: "45 dias" },
+    { id: "cl4", nome: "Agroindustrial Bom Jardim",      cnpj: "11.045.339/0001-24", contato: "Patrícia Almeida", telefone: "(34) 3299-6612", segmento: "Agroindústria",        prazo: "28 dias" },
+    { id: "cl5", nome: "Usinagem Precisão MG",           cnpj: "05.778.221/0001-63", contato: "Diego Farias",     telefone: "(31) 3567-8821", segmento: "Usinagem terceirizada",prazo: "À vista" },
+    { id: "cl6", nome: "Transportadora Serra Azul",      cnpj: "18.902.447/0001-15", contato: "Camila Torres",    telefone: "(34) 3212-0099", segmento: "Manutenção de frota",  prazo: "30 dias" }
+  ];
+
+  const modelosVenda = [
+    { cli: "cl1", desc: "Fabricação de estrutura metálica sob encomenda", faixa: [18000, 34000], parcelas: 3 },
+    { cli: "cl2", desc: "Fornecimento de peças usinadas",                  faixa: [4200, 9800],   parcelas: 1 },
+    { cli: "cl3", desc: "Serviço de solda e montagem em obra",             faixa: [9000, 21000],  parcelas: 2 },
+    { cli: "cl4", desc: "Manutenção corretiva de equipamento",             faixa: [3200, 7600],   parcelas: 1 },
+    { cli: "cl5", desc: "Usinagem de lote sob desenho",                    faixa: [5400, 12500],  parcelas: 2 },
+    { cli: "cl6", desc: "Recuperação de peças e reforço estrutural",       faixa: [6100, 14300],  parcelas: 2 },
+    { cli: "cl1", desc: "Ampliação de galpão — fornecimento de perfis",    faixa: [22000, 41000], parcelas: 4 },
+    { cli: "cl3", desc: "Corte e dobra de chapas para fundação metálica",  faixa: [7300, 16800],  parcelas: 2 }
+  ];
+
+  const vendas = [];
+  const titulosReceber = [];
+  let numeroPedido = 3080;
+
+  for (let volta = 5; volta >= 0; volta--) {
+    const base = new Date(h.getFullYear(), h.getMonth() - volta, 1);
+    const vendasDoMes = volta === 0 ? 4 : 5;
+    for (let k = 0; k < vendasDoMes; k++) {
+      const modelo = pick(modelosVenda, volta * 4 + k);
+      const dia = Math.min(3 + k * 5 + (volta % 2) * 3, 27);
+      const emissao = new Date(base.getFullYear(), base.getMonth(), dia);
+      if (emissao > h) continue;
+
+      const [min, max] = modelo.faixa;
+      const valor = Math.round((min + ((k * 37 + volta * 53) % 100) / 100 * (max - min)) / 10) * 10;
+      const vendaId = "vd" + (++numeroPedido);
+
+      vendas.push({ id: vendaId, numero: String(numeroPedido), clienteId: modelo.cli, emissao: iso(emissao), valor, descricao: modelo.desc });
+
+      const n = modelo.parcelas;
+      const parcelas = [];
+      for (let p = 1; p <= n; p++) {
+        const venc = addDias(emissao, 30 * p);
+        const vencido = venc < h;
+        parcelas.push({
+          n: p, valor: +(valor / n).toFixed(2), vencimento: iso(venc),
+          pago: vencido,
+          pagoEm: vencido ? iso(addDias(venc, -(p % 4))) : null,
+          comprovante: vencido ? { nome: "recibo-" + numeroPedido + "-" + p + ".pdf", tamanho: "52 KB" } : null
+        });
+      }
+      titulosReceber.push({
+        id: uid("tr"), vendaId, clienteId: modelo.cli,
+        descricao: "Pedido " + numeroPedido + " · " + modelo.desc,
+        valor, parcelas
+      });
+    }
+  }
+
+  /* Reabre as duas parcelas a receber vencidas mais recentes, pelo mesmo
+     motivo das contas a pagar: a demo precisa mostrar atraso de verdade. */
+  const receberVencidasOrdenadas = [];
+  titulosReceber.forEach(t => t.parcelas.forEach(p => { if (p.pago) receberVencidasOrdenadas.push(p); }));
+  receberVencidasOrdenadas.sort((a, b) => b.vencimento.localeCompare(a.vencimento));
+  receberVencidasOrdenadas.slice(1, 3).forEach(p => { p.pago = false; p.pagoEm = null; p.comprovante = null; });
+
   /* ---- Saídas de material (requisições de produção) ---- */
   const ordens = ["OS-2431", "OS-2432", "OS-2437", "OS-2440", "OS-2444", "OS-2451", "OS-2455", "OS-2460"];
   const setores = ["Solda", "Usinagem", "Pintura", "Montagem", "Manutenção"];
@@ -762,7 +833,7 @@ function semear() {
     return { id: "c" + (i + 1), ...p, matricula: String(1040 + i * 3), docs };
   });
 
-  return { materiais, fornecedores, notas, titulos, movimentos, colaboradores, criadoEm: iso(h) };
+  return { materiais, fornecedores, notas, titulos, movimentos, colaboradores, clientes, vendas, titulosReceber, criadoEm: iso(h) };
 }
 
 const DOCS_MENSAIS = ["Holerite", "Cartão de ponto", "Comprovante de pagamento"];
@@ -799,6 +870,8 @@ function salvar(dados) {
 const material = id => db.materiais.find(m => m.id === id);
 const fornecedor = id => db.fornecedores.find(f => f.id === id);
 const nota = id => db.notas.find(n => n.id === id);
+const cliente = id => db.clientes.find(c => c.id === id);
+const venda = id => db.vendas.find(v => v.id === id);
 
 function saldo(materialId) {
   return db.movimentos.reduce((s, mv) =>
@@ -838,6 +911,32 @@ function statusParcela(p) {
 function parcelasVencidas() { return todasParcelas().filter(p => !p.pago && diasAte(p.vencimento) < 0); }
 function parcelasProximas(dias = 7) {
   return todasParcelas().filter(p => !p.pago && diasAte(p.vencimento) >= 0 && diasAte(p.vencimento) <= dias);
+}
+
+function todasParcelasReceber() {
+  const lista = [];
+  db.titulosReceber.forEach(t => t.parcelas.forEach(p => lista.push({ ...p, tituloId: t.id, clienteId: t.clienteId, vendaId: t.vendaId, descricao: t.descricao })));
+  return lista;
+}
+function parcelasReceberVencidas() { return todasParcelasReceber().filter(p => !p.pago && diasAte(p.vencimento) < 0); }
+function parcelasReceberProximas(dias = 7) {
+  return todasParcelasReceber().filter(p => !p.pago && diasAte(p.vencimento) >= 0 && diasAte(p.vencimento) <= dias);
+}
+
+function ordensServico() {
+  const mapa = Object.create(null);
+  db.movimentos.filter(mv => mv.tipo === "saida").forEach(mv => {
+    if (!mapa[mv.doc]) mapa[mv.doc] = { id: mv.doc, setor: mv.responsavel, inicio: mv.data, fim: mv.data, itens: [] };
+    const os = mapa[mv.doc];
+    if (mv.data < os.inicio) os.inicio = mv.data;
+    if (mv.data > os.fim) { os.fim = mv.data; os.setor = mv.responsavel; }
+    os.itens.push(mv);
+  });
+  return Object.values(mapa).map(os => {
+    const custo = os.itens.reduce((s, mv) => s + mv.qtd * (material(mv.materialId)?.custo || 0), 0);
+    const status = diasAte(os.fim) >= -10 ? "andamento" : "concluida";
+    return { ...os, custo, status };
+  }).sort((a, b) => b.fim.localeCompare(a.fim));
 }
 
 function notasSemArquivo() {
@@ -1046,8 +1145,10 @@ const VIEWS = {
   painel:       { titulo: "Painel",               sub: "Visão geral",              render: renderPainel },
   estoque:      { titulo: "Estoque",              sub: "Saldos e mínimos",         render: renderEstoque },
   movimentos:   { titulo: "Entradas e saídas",    sub: "Movimentação de material", render: renderMovimentos },
+  os:           { titulo: "Ordens de serviço",    sub: "Consumo de material por OS", render: renderOS },
   fornecedores: { titulo: "Fornecedores",         sub: "Cadastro e histórico",     render: renderFornecedores },
   notas:        { titulo: "Notas fiscais",        sub: "Entrada de documentos",    render: renderNotas },
+  receber:      { titulo: "Contas a receber",     sub: "Parcelas e vencimentos",   render: renderReceber },
   pagar:        { titulo: "Contas a pagar",       sub: "Parcelas e vencimentos",   render: renderPagar },
   contabil:     { titulo: "Portal do contador",   sub: "Fechamento mensal",        render: renderContabil },
   equipe:       { titulo: "Equipe e documentos",  sub: "Pasta do colaborador",     render: renderEquipe }
@@ -1056,7 +1157,9 @@ let viewAtual = "painel";
 const filtros = {
   estoqueBusca: "", estoqueSoCriticos: false,
   movBusca: "", movTipo: "todos",
+  osStatus: "andamento",
   notaComp: null, notaForn: "todos",
+  receberStatus: "abertos",
   pagarStatus: "abertos",
   contabilComp: null,
   equipeComp: null, equipeSoPendentes: false
@@ -1097,6 +1200,7 @@ function atualizarBadges() {
   const def = [
     ["#badge-estoque", materiaisCriticos().length],
     ["#badge-pagar", parcelasVencidas().length + parcelasProximas(7).length],
+    ["#badge-receber", parcelasReceberVencidas().length + parcelasReceberProximas(7).length],
     ["#badge-equipe", db.colaboradores.reduce((s, c) => s + (pendenciasColaborador(c, compAtual()).length ? 1 : 0), 0)]
   ];
   def.forEach(([sel, n]) => {
@@ -1120,6 +1224,8 @@ function renderPainel() {
   const criticos = materiaisCriticos();
   const vencidas = parcelasVencidas();
   const proximas = parcelasProximas(7);
+  const vencidasReceber = parcelasReceberVencidas();
+  const abertoReceber = todasParcelasReceber().filter(p => !p.pago);
   const comp = compAtual();
   const notasMes = db.notas.filter(n => competencia(n.emissao) === comp);
   const conf = conformidadeEquipe(comp);
@@ -1128,6 +1234,10 @@ function renderPainel() {
   const totalProximo = proximas.reduce((s, p) => s + p.valor, 0);
 
   const alertas = [];
+  vencidasReceber.forEach(p => alertas.push({
+    nivel: "crit", titulo: "Recebimento vencido · " + money(p.valor),
+    desc: p.descricao + " · " + cliente(p.clienteId).nome + " · parcela " + p.n + " venceu em " + fmtData(p.vencimento), ir: "receber"
+  }));
   vencidas.forEach(p => alertas.push({
     nivel: "crit", titulo: "Parcela vencida · " + money(p.valor),
     desc: p.descricao + " · parcela " + p.n + " venceu em " + fmtData(p.vencimento), ir: "pagar"
@@ -1172,14 +1282,19 @@ function renderPainel() {
   }
 
   view.innerHTML = `
-    <div class="kpis">
+    <div class="kpis" style="grid-template-columns:repeat(6,minmax(0,1fr))">
+      <div class="kpi is-accent">
+        <span class="k-label">A receber</span>
+        <span class="k-value mono">${moneyShort(abertoReceber.reduce((s, p) => s + p.valor, 0))}</span>
+        <span class="k-foot">${vencidasReceber.length ? vencidasReceber.length + " parcela(s) vencida(s)" : abertoReceber.length + " parcela(s) em aberto"}</span>
+      </div>
       <div class="kpi is-accent">
         <span class="k-label">Valor em estoque</span>
         <span class="k-value mono">${moneyShort(valorEmEstoque())}</span>
         <span class="k-foot">${db.materiais.length} itens cadastrados</span>
       </div>
       <div class="kpi ${vencidas.length ? "is-crit" : "is-good"}">
-        <span class="k-label">Vencido</span>
+        <span class="k-label">Vencido a pagar</span>
         <span class="k-value mono">${moneyShort(totalVencido)}</span>
         <span class="k-foot"><strong>${vencidas.length}</strong> parcela(s) em atraso</span>
       </div>
@@ -1508,6 +1623,90 @@ function renderMovimentos() {
 /* ==================================================================
    11. FORNECEDORES
    ================================================================== */
+/* ==================================================================
+   10B. ORDENS DE SERVIÇO
+   ================================================================== */
+function renderOS() {
+  const view = $("#view-os");
+  const todas = ordensServico();
+  const conjuntos = {
+    andamento: todas.filter(o => o.status === "andamento"),
+    concluida: todas.filter(o => o.status === "concluida"),
+    todas
+  };
+  const visiveis = conjuntos[filtros.osStatus] || conjuntos.andamento;
+  const custoMes = todas.filter(o => competencia(o.fim) === compAtual()).reduce((s, o) => s + o.custo, 0);
+
+  view.innerHTML = `
+    <div class="toolbar">
+      <div class="seg">
+        ${[["andamento", "Em andamento (" + conjuntos.andamento.length + ")"],
+           ["concluida", "Concluídas (" + conjuntos.concluida.length + ")"],
+           ["todas", "Todas (" + conjuntos.todas.length + ")"]].map(([k, r]) =>
+          `<button type="button" data-st="${k}" aria-pressed="${filtros.osStatus === k}">${r}</button>`).join("")}
+      </div>
+      <span class="spacer"></span>
+      <span class="eyebrow">Consumo do mês: ${money(custoMes)}</span>
+    </div>
+
+    <div class="kpis" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+      <div class="kpi is-accent"><span class="k-label">Em andamento</span><span class="k-value mono">${conjuntos.andamento.length}</span><span class="k-foot">sem movimentação nos últimos 10 dias encerra</span></div>
+      <div class="kpi"><span class="k-label">Concluídas</span><span class="k-value mono">${conjuntos.concluida.length}</span><span class="k-foot">histórico completo</span></div>
+      <div class="kpi is-accent"><span class="k-label">Consumo no mês</span><span class="k-value mono">${moneyShort(custoMes)}</span><span class="k-foot">material valorizado ao custo</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Ordens de serviço</h3><span class="hint">agrupadas a partir das requisições em Entradas e saídas</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>OS</th><th>Setor</th><th>Abertura</th><th>Última movimentação</th><th class="num">Itens</th><th class="num">Custo</th><th>Situação</th><th class="tight"></th></tr></thead>
+          <tbody>
+            ${visiveis.length ? visiveis.map(o => `<tr class="row-flag ${o.status === "andamento" ? "" : "good"}">
+              <td class="mono t-strong">${esc(o.id)}</td>
+              <td>${esc(o.setor)}</td>
+              <td class="mono t-sub">${fmtData(o.inicio)}</td>
+              <td class="mono t-sub">${fmtData(o.fim)}</td>
+              <td class="num mono">${o.itens.length}</td>
+              <td class="num mono t-strong">${money(o.custo)}</td>
+              <td><span class="chip ${o.status === "andamento" ? "accent" : "good"}"><span class="dot"></span>${o.status === "andamento" ? "Em andamento" : "Concluída"}</span></td>
+              <td class="tight"><button class="btn sm" type="button" data-os="${esc(o.id)}">Ficha</button></td>
+            </tr>`).join("") : '<tr><td colspan="8"><div class="empty">Nenhuma OS nesta situação.</div></td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+
+  $$("#view-os .seg button").forEach(b => b.addEventListener("click", () => { filtros.osStatus = b.dataset.st; renderOS(); }));
+  $$("#view-os [data-os]").forEach(b => b.addEventListener("click", () => fichaOS(b.dataset.os)));
+}
+
+function fichaOS(id) {
+  const o = ordensServico().find(o => o.id === id);
+  const itens = o.itens.slice().sort((a, b) => a.data.localeCompare(b.data));
+  abrirModal({
+    titulo: "Ordem de serviço " + o.id,
+    corpo: `
+      <div class="grid g-3" style="gap:12px">
+        <div class="kpi is-accent"><span class="k-label">Custo consumido</span><span class="k-value mono">${moneyShort(o.custo)}</span><span class="k-foot">${o.itens.length} requisição(ões)</span></div>
+        <div class="kpi"><span class="k-label">Setor</span><span class="k-value" style="font-size:16px">${esc(o.setor)}</span><span class="k-foot">responsável mais recente</span></div>
+        <div class="kpi ${o.status === "andamento" ? "is-accent" : "is-good"}"><span class="k-label">Situação</span><span class="k-value" style="font-size:16px">${o.status === "andamento" ? "Em andamento" : "Concluída"}</span><span class="k-foot">${fmtData(o.inicio)} — ${fmtData(o.fim)}</span></div>
+      </div>
+      <div class="card" style="box-shadow:none">
+        <div class="card-head"><h3>Material consumido</h3></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Data</th><th>Material</th><th class="num">Qtd.</th><th>Responsável</th><th class="num">Custo</th></tr></thead>
+          <tbody>${itens.map(mv => {
+            const m = material(mv.materialId);
+            return `<tr><td class="mono t-sub">${fmtData(mv.data)}</td><td>${esc(m ? m.nome : mv.materialId)}</td>
+              <td class="num mono">${qty(mv.qtd)} ${m ? esc(m.unidade) : ""}</td><td class="t-sub">${esc(mv.responsavel)}</td>
+              <td class="num mono t-strong">${money(mv.qtd * (m ? m.custo : 0))}</td></tr>`;
+          }).join("")}</tbody>
+        </table></div>
+      </div>`,
+    acoes: [{ rotulo: "Fechar", primaria: true }]
+  });
+}
+
 function renderFornecedores() {
   const view = $("#view-fornecedores");
   const dados = db.fornecedores.map(f => {
@@ -1833,6 +2032,121 @@ function modalNota() {
 /* ==================================================================
    13. CONTAS A PAGAR
    ================================================================== */
+/* ==================================================================
+   13B. CONTAS A RECEBER
+   ================================================================== */
+function renderReceber() {
+  const view = $("#view-receber");
+  let lista = todasParcelasReceber();
+  const vencidas = lista.filter(p => !p.pago && diasAte(p.vencimento) < 0);
+  const semana = lista.filter(p => !p.pago && diasAte(p.vencimento) >= 0 && diasAte(p.vencimento) <= 7);
+  const mes = lista.filter(p => !p.pago && diasAte(p.vencimento) >= 0 && diasAte(p.vencimento) <= 30);
+
+  const conjuntos = {
+    abertos: lista.filter(p => !p.pago),
+    vencidos: vencidas,
+    semana: semana,
+    recebidos: lista.filter(p => p.pago)
+  };
+  const visiveis = (conjuntos[filtros.receberStatus] || conjuntos.abertos)
+    .slice().sort((a, b) => filtros.receberStatus === "recebidos"
+      ? (b.pagoEm || "").localeCompare(a.pagoEm || "")
+      : a.vencimento.localeCompare(b.vencimento));
+
+  view.innerHTML = `
+    <div class="toolbar">
+      <div class="seg">
+        ${[["abertos", "Em aberto (" + conjuntos.abertos.length + ")"],
+           ["vencidos", "Vencidos (" + conjuntos.vencidos.length + ")"],
+           ["semana", "Próximos 7 dias (" + conjuntos.semana.length + ")"],
+           ["recebidos", "Recebidos (" + conjuntos.recebidos.length + ")"]].map(([k, r]) =>
+          `<button type="button" data-st="${k}" aria-pressed="${filtros.receberStatus === k}">${r}</button>`).join("")}
+      </div>
+      <span class="spacer"></span>
+      <span class="eyebrow">Selecionado: ${money(visiveis.reduce((s, p) => s + p.valor, 0))}</span>
+    </div>
+
+    <div class="kpis" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+      <div class="kpi ${vencidas.length ? "is-crit" : "is-good"}"><span class="k-label">Vencido</span><span class="k-value mono">${moneyShort(vencidas.reduce((s, p) => s + p.valor, 0))}</span><span class="k-foot"><strong>${vencidas.length}</strong> parcela(s)</span></div>
+      <div class="kpi is-warn"><span class="k-label">Próximos 7 dias</span><span class="k-value mono">${moneyShort(semana.reduce((s, p) => s + p.valor, 0))}</span><span class="k-foot"><strong>${semana.length}</strong> parcela(s)</span></div>
+      <div class="kpi is-accent"><span class="k-label">Próximos 30 dias</span><span class="k-value mono">${moneyShort(mes.reduce((s, p) => s + p.valor, 0))}</span><span class="k-foot"><strong>${mes.length}</strong> parcela(s)</span></div>
+      <div class="kpi is-accent"><span class="k-label">Total em aberto</span><span class="k-value mono">${moneyShort(conjuntos.abertos.reduce((s, p) => s + p.valor, 0))}</span><span class="k-foot">${conjuntos.abertos.length} parcela(s)</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Parcelas</h3><span class="hint">venda parcelada mostra cada vencimento separado</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Vencimento</th><th>Título</th><th>Parcela</th><th class="num">Valor</th><th>Situação</th><th>Comprovante</th><th class="tight"></th></tr></thead>
+          <tbody>
+            ${visiveis.length ? visiveis.map(p => {
+              const st = statusParcela(p);
+              const flag = st.classe === "crit" ? "crit" : st.classe === "warn" ? "warn" : st.chave === "pago" ? "good" : "";
+              const t = db.titulosReceber.find(t => t.id === p.tituloId);
+              return `<tr class="row-flag ${flag}">
+                <td class="mono t-strong">${fmtData(p.vencimento)}</td>
+                <td><div>${esc(p.descricao)}</div><div class="t-sub">${esc(cliente(p.clienteId).nome)}</div></td>
+                <td class="mono">${p.n}<span class="t-sub">/${t ? t.parcelas.length : 1}</span></td>
+                <td class="num mono t-strong">${money(p.valor)}</td>
+                <td><span class="chip ${st.classe}"><span class="dot"></span>${st.rotulo}</span></td>
+                <td>${p.comprovante
+                  ? `<button class="file-pill" type="button" data-cp="${esc(p.comprovante.nome)}" data-cc="Comprovante · ${esc(p.comprovante.tamanho)}">recibo</button>`
+                  : '<span class="t-sub">—</span>'}</td>
+                <td class="tight">${p.pago
+                  ? `<button class="btn sm" type="button" data-desfazer-r="${p.tituloId}|${p.n}">Reabrir</button>`
+                  : `<button class="btn sm primary" type="button" data-receber="${p.tituloId}|${p.n}">Registrar recebimento</button>`}</td>
+              </tr>`;
+            }).join("") : '<tr><td colspan="7"><div class="empty">Nenhuma parcela nesta situação.</div></td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+
+  $$("#view-receber .seg button").forEach(b => b.addEventListener("click", () => { filtros.receberStatus = b.dataset.st; renderReceber(); }));
+  $$("#view-receber [data-cp]").forEach(b => b.addEventListener("click", () => verArquivo(b.dataset.cp, b.dataset.cc)));
+  $$("#view-receber [data-receber]").forEach(b => b.addEventListener("click", () => modalRecebimento(b.dataset.receber)));
+  $$("#view-receber [data-desfazer-r]").forEach(b => b.addEventListener("click", () => {
+    const [tid, n] = b.dataset.desfazerR.split("|");
+    const p = db.titulosReceber.find(t => t.id === tid).parcelas.find(p => p.n === +n);
+    p.pago = false; p.pagoEm = null; p.comprovante = null;
+    redesenhar(); toast("Parcela reaberta.");
+  }));
+}
+
+function modalRecebimento(ref) {
+  const [tid, n] = ref.split("|");
+  const t = db.titulosReceber.find(t => t.id === tid);
+  const p = t.parcelas.find(p => p.n === +n);
+  abrirModal({
+    titulo: "Registrar recebimento",
+    corpo: `
+      <div class="row" style="gap:22px">
+        <div><div class="eyebrow">Título</div><div class="t-strong">${esc(t.descricao)}</div></div>
+      </div>
+      <div class="row" style="gap:22px">
+        <div><div class="eyebrow">Parcela</div><div class="mono t-strong">${p.n}/${t.parcelas.length}</div></div>
+        <div><div class="eyebrow">Vencimento</div><div class="mono t-strong">${fmtData(p.vencimento)}</div></div>
+        <div><div class="eyebrow">Valor</div><div class="mono t-strong">${money(p.valor)}</div></div>
+      </div>
+      <label class="field"><span>Data do recebimento</span><input name="pagoEm" type="date" value="${iso(hoje())}"></label>
+      <label class="field"><span>Comprovante (opcional)</span><input name="comprovante" type="file"></label>`,
+    acoes: [
+      { rotulo: "Cancelar" },
+      { rotulo: "Confirmar recebimento", primaria: true, aoClicar: () => {
+        const v = valoresDoModal();
+        const input = $('#modal-body input[name="comprovante"]');
+        const arq = input && input.files && input.files[0];
+        p.pago = true;
+        p.pagoEm = v.pagoEm || iso(hoje());
+        p.comprovante = arq
+          ? { nome: arq.name, tamanho: Math.max(1, Math.round(arq.size / 1024)) + " KB" }
+          : { nome: "recibo-manual-" + t.id + "-" + p.n + ".pdf", tamanho: "—" };
+        fecharModal(); redesenhar(); toast("Recebimento registrado · " + money(p.valor));
+      }}
+    ]
+  });
+}
+
 function renderPagar() {
   const view = $("#view-pagar");
   let lista = todasParcelas();
@@ -1969,6 +2283,7 @@ function renderContabil() {
       </label>
       <span class="spacer"></span>
       <button class="btn" type="button" id="b-copiar-relacao">Copiar relação</button>
+      <button class="btn" type="button" id="b-baixar-csv">Baixar CSV</button>
       <button class="btn primary" type="button" id="b-pacote">Gerar pacote do mês</button>
     </div>
 
@@ -2051,10 +2366,11 @@ function renderContabil() {
   $("#f-cont-comp").addEventListener("change", e => { filtros.contabilComp = e.target.value; renderContabil(); });
   $$("#view-contabil [data-fa]").forEach(b => b.addEventListener("click", () => verArquivo(b.dataset.fa, b.dataset.fc)));
   $("#b-copiar-relacao").addEventListener("click", () => copiarRelacao(comp, notas));
+  $("#b-baixar-csv").addEventListener("click", () => baixarCsv(comp, notas));
   $("#b-pacote").addEventListener("click", () => modalPacote(comp, notas, pagamentos));
 }
 
-function copiarRelacao(comp, notas) {
+function csvRelacao(notas) {
   const linhas = [["Emissao", "NF", "Serie", "Fornecedor", "CNPJ", "Valor", "XML", "DANFE"].join(";")];
   notas.forEach(n => {
     const f = fornecedor(n.fornecedorId);
@@ -2065,11 +2381,26 @@ function copiarRelacao(comp, notas) {
       n.arquivos.some(a => a.tipo === "DANFE") ? "sim" : "NAO"
     ].join(";"));
   });
-  const texto = linhas.join("\n");
-  const finalizar = ok => toast(ok ? "Relação copiada — cole no Excel ou no e-mail do contador." : "Não foi possível copiar aqui; use o botão Gerar pacote.");
+  return linhas.join("\n");
+}
+
+function copiarRelacao(comp, notas) {
+  const texto = csvRelacao(notas);
+  const finalizar = ok => toast(ok ? "Relação copiada — cole no Excel ou no e-mail do contador." : "Não foi possível copiar aqui; use o botão Baixar CSV.");
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(texto).then(() => finalizar(true), () => finalizar(false));
   } else finalizar(false);
+}
+
+function baixarCsv(comp, notas) {
+  const texto = csvRelacao(notas);
+  const blob = new Blob(["\uFEFF" + texto], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "notas-" + comp + ".csv";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast("CSV baixado · " + notas.length + " nota(s).");
 }
 
 function modalPacote(comp, notas, pagamentos) {
