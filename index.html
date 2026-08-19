@@ -265,7 +265,7 @@ label.field > span{font-weight:600;color:var(--ink-2)}
 .kpi .k-foot strong{color:var(--ink-2);font-weight:600}
 
 /* ============================== TABLE ============================== */
-.table-wrap{overflow-x:auto}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 table{width:100%;border-collapse:collapse;font-size:13px}
 thead th{
   position:sticky;top:0;background:var(--surface-2);z-index:1;
@@ -420,6 +420,12 @@ td.tight{width:1%;white-space:nowrap}
   .view{padding:16px 14px 48px}
   .topbar{padding:10px 14px}
   .field-row{grid-template-columns:1fr}
+  .scrim{padding:0;align-items:flex-end}
+  .modal,.modal.wide{
+    width:100%;max-width:100%;max-height:92vh;
+    border-radius:14px 14px 0 0;
+  }
+  .modal-foot{position:sticky;bottom:0}
 }
 @media (prefers-reduced-motion: reduce){
   *{transition:none !important;animation:none !important}
